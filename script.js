@@ -28,14 +28,15 @@ document.addEventListener("DOMContentLoaded", async () => {
             const data = await response.json();
             console.log("✅ API вернуло данные:", data);
 
-            // Берем первый трек из массива tracks
-            if (data.tracks && data.tracks.length > 0) {
-                console.log("🎵 Первый трек:", data.tracks[0]);
-                return data.tracks[0]; // Берём первый трек
-            } else {
+            if (!data.tracks || data.tracks.length === 0) {
                 console.warn("⚠️ API вернуло пустой массив треков.");
                 return null;
             }
+
+            const nowPlayingTrack = data.tracks[0]; // Берем первый трек
+            console.log("🎵 Сейчас играет:", nowPlayingTrack);
+
+            return nowPlayingTrack;
 
         } catch (error) {
             console.error("❌ Ошибка при получении данных:", error);
@@ -49,7 +50,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         const track = await fetchNowPlaying();
 
         if (track) {
-            console.log("🎵 Сейчас играет:", track.title, "от", track.artist);
+            console.log("🎵 Заполняем HTML элемент с треком:", track.title, "от", track.artist);
+            
             container.innerHTML = `
                 <div class="now-playing">
                     <img src="${track.artwork_url || 'https://via.placeholder.com/100'}" alt="Обложка альбома">
@@ -60,6 +62,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                     </div>
                 </div>
             `;
+
+            console.log("✅ Контейнер обновлен.");
         } else {
             console.warn("⚠️ Данных о треке нет. Возможно, сейчас ничего не играет.");
             container.innerHTML = `<p style="color: yellow;">Нет активного трека.</p>`;
