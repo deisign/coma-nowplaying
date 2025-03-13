@@ -1,4 +1,4 @@
-// Обновлено 2025-03-13 v11 - фикс обложки и прозрачной кнопки Spotify
+// Обновлено 2025-03-13 v12 - Фикс качества обложки и прозрачной кнопки Spotify
 
 document.addEventListener("DOMContentLoaded", async () => {
     const container = document.getElementById("now-playing-container");
@@ -49,7 +49,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     function getHighResArtwork(url) {
         if (!url) return "https://via.placeholder.com/500"; // Фоллбек, если нет обложки
-        return url.replace(/100x100bb/, "1000x1000bb").replace(/source\/100x100/, "source/1000x100");
+        return url
+            .replace(/100x100bb/, "1000x1000bb")  // iTunes
+            .replace(/source\/100x100/, "source/1000x100")  // Другие сервисы
+            .replace(/\/100x100bb\.jpg/, "/1000x1000bb.jpg") // Запасной фикс
+            .replace(/\/50x50bb\.jpg/, "/1000x1000bb.jpg");  // На случай ещё меньших картинок
     }
 
     async function fetchNowPlaying() {
