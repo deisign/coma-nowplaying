@@ -52,6 +52,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         }, 500);
     }
 
+    function getSpotifySearchLink(artist, track) {
+        const query = encodeURIComponent(`${artist} ${track}`);
+        return `https://open.spotify.com/search/${query}`;
+    }
+
     async function updateNowPlaying() {
         const track = await fetchNowPlaying();
 
@@ -59,6 +64,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             const parsed = parseTrackTitle(track.title);
             console.log("🎵 Обновляем HTML: Трек -", parsed.title, "от", parsed.artist);
 
+            const spotifyLink = getSpotifySearchLink(parsed.artist, parsed.title);
+            
             if (!audioElement) {
                 audioElement = document.createElement("audio");
                 audioElement.controls = true;
@@ -74,6 +81,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                         <div class="track-info">
                             <h3>${parsed.title}</h3>
                             <p>${parsed.artist}</p>
+                            <a href="${spotifyLink}" target="_blank" class="spotify-button">🔎 Найти в Spotify</a>
                         </div>
                     </div>
                 `);
