@@ -8,12 +8,17 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     async function fetchNowPlaying() {
         try {
-            console.time("⏳ Время отклика API"); // Засекаем время запроса
+            console.time("⏳ Время отклика API");
 
-            const response = await fetch(apiUrl);
-            
-            console.timeEnd("⏳ Время отклика API"); // Логируем задержку запроса
+            const response = await fetch(apiUrl, {
+                method: "GET",
+                headers: {
+                    "Accept": "application/json",
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+                }
+            });
 
+            console.timeEnd("⏳ Время отклика API");
             console.log("📡 HTTP-статус ответа:", response.status);
 
             if (!response.ok) {
@@ -23,14 +28,13 @@ document.addEventListener("DOMContentLoaded", async () => {
             const data = await response.json();
             console.log("✅ API вернуло данные:", data);
 
-            return data[0]; // Первый трек — текущий
-        } catch (error) {
-            console.error("❌ Ошибка при получении данных:", error);
-
-            if (error.message.includes("Failed to fetch")) {
-                console.warn("⚠️ Возможно, проблема с CORS или API блокирует запросы.");
+            if (!data || data.length === 0) {
+                console.warn("⚠️ API вернуло пустой массив. Возможно, сейчас ничего не играет.");
             }
 
+            return data[0] || null; // Если массив пустой, вернём null
+        } catch (error) {
+            console.error("❌ Ошибка при получении данных:", error);
             container.innerHTML = `<p style="color: red;">Ошибка загрузки трека.</p>`;
             return null;
         }
@@ -53,7 +57,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                 </div>
             `;
         } else {
-            console.warn("⚠️ Данных о треке нет.");
+            console.warn("⚠️ Данных о треке нет. Возможно, сейчас ничего не играет.");
+            container.innerHTML = `<p style="color: yellow;">Нет активного трека.</p>`;
         }
     }
 
