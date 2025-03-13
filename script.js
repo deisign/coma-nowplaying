@@ -4,7 +4,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     const streamUrl = "https://stream.radio.co/s4360dbc20/listen";
 
     let currentTrack = null;
-    let audioElement = null;
+    let audioElement = document.createElement("audio");
+
+    // Создаём плеер один раз
+    audioElement.controls = true;
+    audioElement.src = streamUrl;
+    audioElement.autoplay = true;
+    audioElement.style.width = "100%";
 
     console.log("🚀 Веблет Now Playing запущен!");
     console.log("🔗 Запрашиваем данные с API:", apiUrl);
@@ -57,32 +63,29 @@ document.addEventListener("DOMContentLoaded", async () => {
             console.log("🎵 Обновляем HTML: Трек -", parsed.title, "от", parsed.artist);
 
             const spotifyLink = getSpotifySearchLink(parsed.artist, parsed.title);
-            
-            if (!audioElement) {
-                audioElement = document.createElement("audio");
-                audioElement.controls = true;
-                audioElement.src = streamUrl;
-                audioElement.autoplay = true;
-                audioElement.style.width = "100%";
+
+            // Проверяем, существует ли контейнер, чтобы не дублировать
+            let nowPlayingContainer = document.querySelector(".now-playing-container");
+            if (!nowPlayingContainer) {
+                nowPlayingContainer = document.createElement("div");
+                nowPlayingContainer.className = "now-playing-container";
+                container.appendChild(nowPlayingContainer);
             }
 
-            container.innerHTML = `
-                <div class="now-playing-container">
-                    <div class="now-playing">
-                        <img class="album-art" src="${track.artwork_url || 'https://via.placeholder.com/150'}" alt="Обложка альбома">
-                        <div class="track-info">
-                            <h3>${parsed.title}</h3>
-                            <p>${parsed.artist}</p>
-                            <a href="${spotifyLink}" target="_blank" class="spotify-button">🔎 Найти в Spotify</a>
-                        </div>
-                        <div class="audio-container"></div>
+            nowPlayingContainer.innerHTML = `
+                <div class="now-playing">
+                    <img class="album-art" src="${track.artwork_url || 'https://via.placeholder.com/150'}" alt="Обложка альбома">
+                    <div class="track-info">
+                        <h3>${parsed.title}</h3>
+                        <p>${parsed.artist}</p>
+                        <a href="${spotifyLink}" target="_blank" class="spotify-button">🔎 Найти в Spotify</a>
                     </div>
                 </div>
             `;
 
-            const audioContainer = container.querySelector(".audio-container");
-            if (!audioContainer.querySelector("audio")) {
-                audioContainer.appendChild(audioElement);
+            // Добавляем аудиоплеер, если он ещё не вставлен
+            if (!nowPlayingContainer.querySelector("audio")) {
+                nowPlayingContainer.appendChild(audioElement);
             }
 
             currentTrack = parsed.title;
