@@ -2,6 +2,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     const container = document.getElementById("now-playing-container");
     const apiUrl = "https://public.radio.co/stations/s4360dbc20/history";
     const streamUrl = "https://stream.radio.co/s4360dbc20/listen";
+    
+    let currentTrack = null; // Запоминаем текущий трек, чтобы не перезаписывать плеер
 
     console.log("🚀 Веблет Now Playing запущен!");
     console.log("🔗 Запрашиваем данные с API:", apiUrl);
@@ -34,7 +36,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
 
             const nowPlayingTrack = data.tracks[0]; // Берем первый трек
-            console.log("🎵 Первый трек:", nowPlayingTrack);
+            console.log("🎵 Сейчас играет:", nowPlayingTrack);
 
             return nowPlayingTrack;
 
@@ -45,27 +47,36 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
+    function parseTrackTitle(title) {
+        if (!title.includes(" - ")) return { artist: "Неизвестный исполнитель", title };
+        const [artist, track] = title.split(" - ", 2);
+        return { artist, title: track };
+    }
+
     async function updateNowPlaying() {
         console.log("🔄 Обновляем информацию о треке...");
         const track = await fetchNowPlaying();
 
         if (track) {
-            console.log("🎵 Обновляем HTML: Трек -", track.title, "от", track.artist);
+            const parsed = parseTrackTitle(track.title);
+
+            console.log("🎵 Обновляем HTML: Трек -", parsed.title, "от", parsed.artist);
             console.log("🖼 Обложка альбома:", track.artwork_url);
-            console.log("🔊 Ссылка на радио:", streamUrl);
 
-            container.innerHTML = `
-                <div class="now-playing">
-                    <img src="${track.artwork_url || 'https://via.placeholder.com/100'}" alt="Обложка альбома">
-                    <div class="track-info">
-                        <h3>${track.title || 'Неизвестный трек'}</h3>
-                        <p>${track.artist || 'Неизвестный исполнитель'}</p>
-                        <audio controls src="${streamUrl}" autoplay></audio>
+            if (currentTrack !== parsed.title) {
+                // Обновляем только если трек изменился
+                container.innerHTML = `
+                    <div class="now-playing">
+                        <img src="${track.artwork_url || 'https://via.placeholder.com/100'}" alt="Обложка альбома">
+                        <div class="track-info">
+                            <h3>${parsed.title || 'Неизвестный трек'}</h3>
+                            <p>${parsed.artist || 'Неизвестный исполнитель'}</p>
+                        </div>
                     </div>
-                </div>
-            `;
-
-            console.log("✅ Контейнер обновлен.");
+                `;
+                console.log("✅ Контейнер обновлен.");
+                currentTrack = parsed.title;
+            }
         } else {
             console.warn("⚠️ Данных о треке нет. Возможно, сейчас ничего не играет.");
             container.innerHTML = `<p style="color: yellow;">Нет активного трека.</p>`;
