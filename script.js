@@ -28,11 +28,15 @@ document.addEventListener("DOMContentLoaded", async () => {
             const data = await response.json();
             console.log("✅ API вернуло данные:", data);
 
-            if (!data || data.length === 0) {
-                console.warn("⚠️ API вернуло пустой массив. Возможно, сейчас ничего не играет.");
+            // Берем первый трек из массива tracks
+            if (data.tracks && data.tracks.length > 0) {
+                console.log("🎵 Первый трек:", data.tracks[0]);
+                return data.tracks[0]; // Берём первый трек
+            } else {
+                console.warn("⚠️ API вернуло пустой массив треков.");
+                return null;
             }
 
-            return data[0] || null; // Если массив пустой, вернём null
         } catch (error) {
             console.error("❌ Ошибка при получении данных:", error);
             container.innerHTML = `<p style="color: red;">Ошибка загрузки трека.</p>`;
@@ -48,7 +52,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             console.log("🎵 Сейчас играет:", track.title, "от", track.artist);
             container.innerHTML = `
                 <div class="now-playing">
-                    <img src="${track.artwork || 'https://via.placeholder.com/100'}" alt="Обложка альбома">
+                    <img src="${track.artwork_url || 'https://via.placeholder.com/100'}" alt="Обложка альбома">
                     <div class="track-info">
                         <h3>${track.title || 'Неизвестный трек'}</h3>
                         <p>${track.artist || 'Неизвестный исполнитель'}</p>
