@@ -75,7 +75,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
 
             if (currentTrack !== parsed.title) {
-                fadeOutIn(container, `
+                container.innerHTML = `
                     <div class="now-playing">
                         <img src="${track.artwork_url || 'https://via.placeholder.com/100'}" alt="Обложка альбома">
                         <div class="track-info">
@@ -84,7 +84,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                             <a href="${spotifyLink}" target="_blank" class="spotify-button">🔎 Найти в Spotify</a>
                         </div>
                     </div>
-                `);
+                `;
 
                 if (!container.querySelector("audio")) {
                     container.appendChild(audioElement);
