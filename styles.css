@@ -1,27 +1,35 @@
 .now-playing-container {
     text-align: center;
-    font-family: Arial, sans-serif;
+    font-family: "Arial", sans-serif;
     padding: 20px;
-    background-color: #111;
+    background: linear-gradient(135deg, #1e1e1e, #252525);
     color: white;
-    border-radius: 10px;
-    width: 300px;
+    border-radius: 12px;
+    width: 350px;
     margin: auto;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: background 0.5s ease-in-out;
 }
 
 .now-playing img {
-    width: 100px;
-    height: 100px;
-    border-radius: 5px;
+    width: 120px;
+    height: 120px;
+    border-radius: 10px;
     margin-bottom: 10px;
+    transition: transform 0.3s ease-in-out;
 }
 
-.now-playing h3 {
+.now-playing img:hover {
+    transform: scale(1.05);
+}
+
+.track-info h3 {
     font-size: 18px;
     margin: 5px 0;
+    font-weight: bold;
 }
 
-.now-playing p {
+.track-info p {
     font-size: 14px;
     opacity: 0.8;
 }
@@ -29,4 +37,10 @@
 audio {
     width: 100%;
     margin-top: 10px;
+    border-radius: 8px;
+}
+
+.now-playing-container {
+    opacity: 1;
+    transition: opacity 0.5s ease-in-out;
 }
