@@ -29,7 +29,11 @@ document.addEventListener("DOMContentLoaded", async () => {
             <div class="track-info">
                 <h3 class="track-title">Загрузка...</h3>
                 <p class="track-artist">Загрузка...</p>
-                <a href="#" target="_blank" class="spotify-button">🔎 Найти в Spotify</a>
+                <a href="#" target="_blank" class="spotify-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 496 512">
+                        <path fill="white" d="M248 8C111 8 0 119 0 256s111 248 248 248 248-111 248-248S385 8 248 8zm101 365c-3 5-8 8-13 8-2 0-5-1-7-2-39-24-85-37-132-37-28 0-57 4-84 13-6 2-12 1-16-4s-5-11-2-17c4-5 10-8 16-6 30-9 61-14 91-14 52 0 102 14 146 41 5 3 7 9 6 15s-5 10-9 12zm20-47c-4 7-11 10-18 6-45-28-97-42-150-42-33 0-65 5-95 14-7 2-14-2-16-9-3-7 1-14 8-16 33-10 68-15 103-15 58 0 115 16 164 46 6 4 8 12 4 18zm8-51c-54-32-116-49-180-49-36 0-73 5-108 16-8 2-16-2-18-10-3-8 2-16 10-19 38-11 78-17 116-17 70 0 138 18 197 52 7 4 10 14 6 21-5 8-15 10-23 6z"/>
+                    </svg>
+                </a>
             </div>
         </div>
     `;
@@ -37,6 +41,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Вставляем плеер, если его ещё нет
     if (!nowPlayingContainer.querySelector("audio")) {
         nowPlayingContainer.appendChild(audioElement);
+    }
+
+    function getHighResArtwork(url) {
+        if (!url) return "https://via.placeholder.com/500"; // Фоллбек, если нет обложки
+        return url.replace(/100x100bb/, "500x500bb"); // Заменяем разрешение
     }
 
     async function fetchNowPlaying() {
@@ -89,7 +98,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             const spotifyLink = getSpotifySearchLink(parsed.artist, parsed.title);
 
             // Обновляем содержимое карточки без пересоздания
-            nowPlayingContainer.querySelector(".album-art").src = track.artwork_url || "https://via.placeholder.com/150";
+            nowPlayingContainer.querySelector(".album-art").src = getHighResArtwork(track.artwork_url);
             nowPlayingContainer.querySelector(".track-title").textContent = parsed.title;
             nowPlayingContainer.querySelector(".track-artist").textContent = parsed.artist;
             nowPlayingContainer.querySelector(".spotify-button").href = spotifyLink;
