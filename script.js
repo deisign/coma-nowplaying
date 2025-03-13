@@ -1,4 +1,4 @@
-// Обновлено 2025-03-13 - форсируем обновление
+// Обновлено 2025-03-13 v2
 
 document.addEventListener("DOMContentLoaded", async () => {
     const container = document.getElementById("now-playing-container");
