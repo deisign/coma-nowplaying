@@ -1,4 +1,4 @@
-// Обновлено 2025-03-13 v13 - Чистый белый логотип Spotify, убран зелёный фон
+// Обновлено 2025-03-13 v14 - Динамический фон по цвету обложки
 
 document.addEventListener("DOMContentLoaded", async () => {
     const container = document.getElementById("now-playing-container");
@@ -17,7 +17,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.log("🚀 Веблет Now Playing запущен!");
     console.log("🔗 Запрашиваем данные с API:", apiUrl);
 
-    // Проверяем, есть ли уже контейнер, если нет – создаём
     let nowPlayingContainer = document.querySelector(".now-playing-container");
     if (!nowPlayingContainer) {
         nowPlayingContainer = document.createElement("div");
@@ -42,18 +41,17 @@ document.addEventListener("DOMContentLoaded", async () => {
         </div>
     `;
 
-    // Вставляем плеер, если его ещё нет
     if (!nowPlayingContainer.querySelector("audio")) {
         nowPlayingContainer.appendChild(audioElement);
     }
 
     function getHighResArtwork(url) {
-        if (!url) return "https://via.placeholder.com/500"; // Фоллбек, если нет обложки
+        if (!url) return "https://via.placeholder.com/500"; 
         return url
-            .replace(/100x100bb/, "1000x1000bb")  // iTunes
-            .replace(/source\/100x100/, "source/1000x100")  // Другие сервисы
-            .replace(/\/100x100bb\.jpg/, "/1000x1000bb.jpg") // Запасной фикс
-            .replace(/\/50x50bb\.jpg/, "/1000x1000bb.jpg");  // На случай ещё меньших картинок
+            .replace(/100x100bb/, "1000x1000bb")
+            .replace(/source\/100x100/, "source/1000x100")
+            .replace(/\/100x100bb\.jpg/, "/1000x1000bb.jpg")
+            .replace(/\/50x50bb\.jpg/, "/1000x1000bb.jpg");
     }
 
     async function fetchNowPlaying() {
@@ -96,6 +94,36 @@ document.addEventListener("DOMContentLoaded", async () => {
         return `https://open.spotify.com/search/${query}`;
     }
 
+    function setDynamicBackground(imageUrl) {
+        const img = new Image();
+        img.crossOrigin = "Anonymous";
+        img.src = imageUrl;
+
+        img.onload = function () {
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+            canvas.width = img.width;
+            canvas.height = img.height;
+            ctx.drawImage(img, 0, 0, img.width, img.height);
+
+            const imageData = ctx.getImageData(0, 0, img.width, img.height).data;
+            let r = 0, g = 0, b = 0, count = 0;
+
+            for (let i = 0; i < imageData.length; i += 4 * 50) { // Читаем каждый 50-й пиксель
+                r += imageData[i];
+                g += imageData[i + 1];
+                b += imageData[i + 2];
+                count++;
+            }
+
+            r = Math.floor(r / count);
+            g = Math.floor(g / count);
+            b = Math.floor(b / count);
+
+            nowPlayingContainer.style.background = `rgba(${r}, ${g}, ${b}, 0.9)`;
+        };
+    }
+
     async function updateNowPlaying() {
         const track = await fetchNowPlaying();
 
@@ -104,17 +132,19 @@ document.addEventListener("DOMContentLoaded", async () => {
             console.log("🎵 Обновляем HTML: Трек -", parsed.title, "от", parsed.artist);
 
             const spotifyLink = getSpotifySearchLink(parsed.artist, parsed.title);
+            const artworkUrl = getHighResArtwork(track.artwork_url);
 
-            // Обновляем содержимое карточки без пересоздания
-            nowPlayingContainer.querySelector(".album-art").src = getHighResArtwork(track.artwork_url);
+            nowPlayingContainer.querySelector(".album-art").src = artworkUrl;
             nowPlayingContainer.querySelector(".track-title").textContent = parsed.title;
             nowPlayingContainer.querySelector(".track-artist").textContent = parsed.artist;
             nowPlayingContainer.querySelector(".spotify-button").href = spotifyLink;
+
+            setDynamicBackground(artworkUrl);
 
             currentTrack = parsed.title;
         }
     }
 
     updateNowPlaying();
-    setInterval(updateNowPlaying, 1000);
+    setInterval(updateNowPlaying, 10000);
 });
