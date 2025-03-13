@@ -44,14 +44,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         return { artist, title: track };
     }
 
-    function fadeOutIn(element, newContent) {
-        element.style.opacity = 0;
-        setTimeout(() => {
-            element.innerHTML = newContent;
-            element.style.opacity = 1;
-        }, 500);
-    }
-
     function getSpotifySearchLink(artist, track) {
         const query = encodeURIComponent(`${artist} ${track}`);
         return `https://open.spotify.com/search/${query}`;
@@ -74,24 +66,26 @@ document.addEventListener("DOMContentLoaded", async () => {
                 audioElement.style.width = "100%";
             }
 
-            if (currentTrack !== parsed.title) {
-                container.innerHTML = `
+            container.innerHTML = `
+                <div class="now-playing-container">
                     <div class="now-playing">
-                        <img src="${track.artwork_url || 'https://via.placeholder.com/100'}" alt="Обложка альбома">
+                        <img class="album-art" src="${track.artwork_url || 'https://via.placeholder.com/150'}" alt="Обложка альбома">
                         <div class="track-info">
                             <h3>${parsed.title}</h3>
                             <p>${parsed.artist}</p>
                             <a href="${spotifyLink}" target="_blank" class="spotify-button">🔎 Найти в Spotify</a>
                         </div>
+                        <div class="audio-container"></div>
                     </div>
-                `;
+                </div>
+            `;
 
-                if (!container.querySelector("audio")) {
-                    container.appendChild(audioElement);
-                }
-
-                currentTrack = parsed.title;
+            const audioContainer = container.querySelector(".audio-container");
+            if (!audioContainer.querySelector("audio")) {
+                audioContainer.appendChild(audioElement);
             }
+
+            currentTrack = parsed.title;
         }
     }
 
