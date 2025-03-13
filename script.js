@@ -34,7 +34,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
 
             const nowPlayingTrack = data.tracks[0]; // Берем первый трек
-            console.log("🎵 Сейчас играет:", nowPlayingTrack);
+            console.log("🎵 Первый трек:", nowPlayingTrack);
 
             return nowPlayingTrack;
 
@@ -50,8 +50,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         const track = await fetchNowPlaying();
 
         if (track) {
-            console.log("🎵 Заполняем HTML элемент с треком:", track.title, "от", track.artist);
-            
+            console.log("🎵 Обновляем HTML: Трек -", track.title, "от", track.artist);
+            console.log("🖼 Обложка альбома:", track.artwork_url);
+            console.log("🔊 Ссылка на радио:", streamUrl);
+
             container.innerHTML = `
                 <div class="now-playing">
                     <img src="${track.artwork_url || 'https://via.placeholder.com/100'}" alt="Обложка альбома">
