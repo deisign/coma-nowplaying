@@ -3,47 +3,37 @@ document.addEventListener("DOMContentLoaded", async () => {
     const apiUrl = "https://public.radio.co/stations/s4360dbc20/history";
     const streamUrl = "https://stream.radio.co/s4360dbc20/listen";
 
-    let currentTrack = null; // Запоминаем текущий трек
-    let audioElement = null; // Отдельно храним плеер, чтобы не сбрасывался
+    let currentTrack = null;
+    let audioElement = null;
 
     console.log("🚀 Веблет Now Playing запущен!");
     console.log("🔗 Запрашиваем данные с API:", apiUrl);
 
     async function fetchNowPlaying() {
         try {
-            console.time("⏳ Время отклика API");
-
             const response = await fetch(apiUrl, {
                 method: "GET",
                 headers: {
                     "Accept": "application/json",
-                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+                    "User-Agent": "Mozilla/5.0"
                 }
             });
 
-            console.timeEnd("⏳ Время отклика API");
-            console.log("📡 HTTP-статус ответа:", response.status);
-
             if (!response.ok) {
-                throw new Error(`❌ Ошибка HTTP: ${response.status} - ${response.statusText}`);
+                throw new Error(`❌ Ошибка HTTP: ${response.status}`);
             }
 
             const data = await response.json();
             console.log("✅ API вернуло данные:", data);
 
             if (!data.tracks || data.tracks.length === 0) {
-                console.warn("⚠️ API вернуло пустой массив треков.");
                 return null;
             }
 
-            const nowPlayingTrack = data.tracks[0]; // Берем первый трек
-            console.log("🎵 Сейчас играет:", nowPlayingTrack);
-
-            return nowPlayingTrack;
+            return data.tracks[0];
 
         } catch (error) {
             console.error("❌ Ошибка при получении данных:", error);
-            container.innerHTML = `<p style="color: red;">Ошибка загрузки трека.</p>`;
             return null;
         }
     }
@@ -54,49 +44,49 @@ document.addEventListener("DOMContentLoaded", async () => {
         return { artist, title: track };
     }
 
+    function fadeOutIn(element, newContent) {
+        element.style.opacity = 0;
+        setTimeout(() => {
+            element.innerHTML = newContent;
+            element.style.opacity = 1;
+        }, 500);
+    }
+
     async function updateNowPlaying() {
-        console.log("🔄 Обновляем информацию о треке...");
         const track = await fetchNowPlaying();
 
         if (track) {
             const parsed = parseTrackTitle(track.title);
-
             console.log("🎵 Обновляем HTML: Трек -", parsed.title, "от", parsed.artist);
-            console.log("🖼 Обложка альбома:", track.artwork_url);
 
-            // Если плеер еще не создан – создаем его
             if (!audioElement) {
                 audioElement = document.createElement("audio");
                 audioElement.controls = true;
                 audioElement.src = streamUrl;
                 audioElement.autoplay = true;
-                audioElement.style.width = "100%"; // Растягиваем плеер по ширине
+                audioElement.style.width = "100%";
             }
 
-            // Обновляем только текст и картинку, не трогая плеер
-            container.innerHTML = `
-                <div class="now-playing">
-                    <img src="${track.artwork_url || 'https://via.placeholder.com/100'}" alt="Обложка альбома">
-                    <div class="track-info">
-                        <h3>${parsed.title || 'Неизвестный трек'}</h3>
-                        <p>${parsed.artist || 'Неизвестный исполнитель'}</p>
+            if (currentTrack !== parsed.title) {
+                fadeOutIn(container, `
+                    <div class="now-playing">
+                        <img src="${track.artwork_url || 'https://via.placeholder.com/100'}" alt="Обложка альбома">
+                        <div class="track-info">
+                            <h3>${parsed.title}</h3>
+                            <p>${parsed.artist}</p>
+                        </div>
                     </div>
-                </div>
-            `;
+                `);
 
-            // Вставляем плеер в контейнер (но только если его нет)
-            if (!container.querySelector("audio")) {
-                container.appendChild(audioElement);
+                if (!container.querySelector("audio")) {
+                    container.appendChild(audioElement);
+                }
+
+                currentTrack = parsed.title;
             }
-
-            console.log("✅ Контейнер обновлен.");
-            currentTrack = parsed.title;
-        } else {
-            console.warn("⚠️ Данных о треке нет. Возможно, сейчас ничего не играет.");
-            container.innerHTML = `<p style="color: yellow;">Нет активного трека.</p>`;
         }
     }
 
     updateNowPlaying();
-    setInterval(updateNowPlaying, 30000);
+    setInterval(updateNowPlaying, 1000);
 });
