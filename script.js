@@ -15,6 +15,30 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.log("🚀 Веблет Now Playing запущен!");
     console.log("🔗 Запрашиваем данные с API:", apiUrl);
 
+    // Проверяем, есть ли уже контейнер, если нет – создаём
+    let nowPlayingContainer = document.querySelector(".now-playing-container");
+    if (!nowPlayingContainer) {
+        nowPlayingContainer = document.createElement("div");
+        nowPlayingContainer.className = "now-playing-container";
+        container.appendChild(nowPlayingContainer);
+    }
+
+    nowPlayingContainer.innerHTML = `
+        <div class="now-playing">
+            <img class="album-art" src="" alt="Обложка альбома">
+            <div class="track-info">
+                <h3 class="track-title">Загрузка...</h3>
+                <p class="track-artist">Загрузка...</p>
+                <a href="#" target="_blank" class="spotify-button">🔎 Найти в Spotify</a>
+            </div>
+        </div>
+    `;
+
+    // Вставляем плеер, если его ещё нет
+    if (!nowPlayingContainer.querySelector("audio")) {
+        nowPlayingContainer.appendChild(audioElement);
+    }
+
     async function fetchNowPlaying() {
         try {
             const response = await fetch(apiUrl, {
@@ -64,29 +88,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             const spotifyLink = getSpotifySearchLink(parsed.artist, parsed.title);
 
-            // Проверяем, существует ли контейнер, чтобы не дублировать
-            let nowPlayingContainer = document.querySelector(".now-playing-container");
-            if (!nowPlayingContainer) {
-                nowPlayingContainer = document.createElement("div");
-                nowPlayingContainer.className = "now-playing-container";
-                container.appendChild(nowPlayingContainer);
-            }
-
-            nowPlayingContainer.innerHTML = `
-                <div class="now-playing">
-                    <img class="album-art" src="${track.artwork_url || 'https://via.placeholder.com/150'}" alt="Обложка альбома">
-                    <div class="track-info">
-                        <h3>${parsed.title}</h3>
-                        <p>${parsed.artist}</p>
-                        <a href="${spotifyLink}" target="_blank" class="spotify-button">🔎 Найти в Spotify</a>
-                    </div>
-                </div>
-            `;
-
-            // Добавляем аудиоплеер, если он ещё не вставлен
-            if (!nowPlayingContainer.querySelector("audio")) {
-                nowPlayingContainer.appendChild(audioElement);
-            }
+            // Обновляем содержимое карточки без пересоздания
+            nowPlayingContainer.querySelector(".album-art").src = track.artwork_url || "https://via.placeholder.com/150";
+            nowPlayingContainer.querySelector(".track-title").textContent = parsed.title;
+            nowPlayingContainer.querySelector(".track-artist").textContent = parsed.artist;
+            nowPlayingContainer.querySelector(".spotify-button").href = spotifyLink;
 
             currentTrack = parsed.title;
         }
