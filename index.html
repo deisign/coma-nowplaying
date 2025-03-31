@@ -1,13 +1,1152 @@
 <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>coma.fm</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root {
+      --font-main: 'Space Grotesk', sans-serif;
+      --color-bg: #333333;
+      --color-text: #f5f5dc;
+      --color-accent: #d94f00;
+      --color-secondary: #008080;
+      --color-soft: rgba(245, 245, 220, 0.1);
+      --lava-1: #d94f00;
+      --lava-2: #4caba7;
+      --lava-3: #cc7a8b;
+      --lava-4: #87a330;
+    }
+
+    body {
+      margin: 0;
+      font-family: var(--font-main);
+      background: var(--color-bg);
+      color: var(--color-text);
+      overflow: hidden;
+    }
+
+    .content {
+      position: relative;
+      z-index: 10;
+      padding: 20px;
+    }
+
+    /* Lava Styles */
+    
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #000;
+        }
+        
+        .lava-container {
+            position: fixed;
+            width: 100vw;
+            height: 100vh;
+            background: #000;
+            /* Предварительный рендеринг */
+            contain: layout size;
+        }
+
+        .lava-blob {
+            position: absolute;
+            border-radius: 50%;
+            /* Уменьшаем радиус размытия */
+            filter: blur(calc(1.5vw + 1.5vh));
+            mix-blend-mode: screen;
+            opacity: 0.6;
+            /* Подсказка браузеру об оптимизации */
+            will-change: transform;
+            /* Принудительное аппаратное ускорение */
+            transform: translateZ(0);
+        }
+
+        /* Предварительно определяем только 4 ключевых блоба */
+        .blob1 {
+            width: 30vw;
+            height: 30vw;
+            background: #8b0046;
+            animation: float1 25s ease-in-out infinite;
+        }
+
+        .blob2 {
+            width: 35vw;
+            height: 35vw;
+            background: #004b8c;
+            animation: float2 28s ease-in-out infinite;
+        }
+
+        .blob3 {
+            width: 25vw;
+            height: 25vw;
+            background: #4b0082;
+            animation: float3 24s ease-in-out infinite;
+        }
+
+        .blob4 {
+            width: 40vw;
+            height: 40vw;
+            background: #006400;
+            animation: float4 30s ease-in-out infinite;
+        }
+
+        /* Отдельные анимации для каждого блоба */
+        @keyframes float1 {
+            0% { transform: translate(10vw, 10vh) scale(1) translateZ(0); }
+            25% { transform: translate(60vw, 30vh) scale(1.1) translateZ(0); }
+            50% { transform: translate(50vw, 60vh) scale(0.9) translateZ(0); }
+            75% { transform: translate(20vw, 40vh) scale(1.05) translateZ(0); }
+            100% { transform: translate(10vw, 10vh) scale(1) translateZ(0); }
+        }
+
+        @keyframes float2 {
+            0% { transform: translate(60vw, 20vh) scale(1) translateZ(0); }
+            30% { transform: translate(20vw, 40vh) scale(1.1) translateZ(0); }
+            60% { transform: translate(40vw, 60vh) scale(0.9) translateZ(0); }
+            100% { transform: translate(60vw, 20vh) scale(1) translateZ(0); }
+        }
+
+        @keyframes float3 {
+            0% { transform: translate(30vw, 70vh) scale(1) translateZ(0); }
+            40% { transform: translate(70vw, 30vh) scale(1.05) translateZ(0); }
+            80% { transform: translate(20vw, 50vh) scale(0.95) translateZ(0); }
+            100% { transform: translate(30vw, 70vh) scale(1) translateZ(0); }
+        }
+
+        @keyframes float4 {
+            0% { transform: translate(70vw, 60vh) scale(1) translateZ(0); }
+            33% { transform: translate(20vw, 20vh) scale(1.1) translateZ(0); }
+            66% { transform: translate(50vw, 40vh) scale(0.9) translateZ(0); }
+            100% { transform: translate(70vw, 60vh) scale(1) translateZ(0); }
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.4) 100%);
+            pointer-events: none;
+        }
+    
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="lava-container">
+<div class="lava-blob blob1"></div>
+<div class="lava-blob blob2"></div>
+<div class="lava-blob blob3"></div>
+<div class="lava-blob blob4"></div>
+<div class="overlay"></div>
+</div>
+  <div class="content">
+    <div id="program-name" style="margin-bottom: 10px; font-weight: bold;"></div>
+            <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Now Playing | Coma.fm</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>coma.fm Player</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: rgba(51, 51, 51, 0.8); /* Charcoal with opacity */
+            --text-color: #f5f5dc; /* Cream */
+            --accent-color: #d94f00; /* Burnt Orange */
+            --secondary-accent: #e1b80d; /* Mustard Yellow */
+            --highlight-color: #4caba7; /* Deep Aqua */
+            --background-tint: rgba(168, 159, 145, 0.1); /* Warm Gray with opacity */
+            --track-size: 200px;
+        }
+        
+        /* Общие стили */
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            margin: 0;
+            padding: 0;
+            /* Демонстрационный фон для отладки - потом его можно будет убрать */
+            background: linear-gradient(45deg, #330867, #30cfd0);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        /* Контейнер плеера */
+        .player-container {
+            background-color: var(--primary-color);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            width: 100%;
+            max-width: 900px;
+            margin: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        /* Главный блок плеера */
+        .player-main {
+            display: flex;
+            padding: 20px;
+            align-items: center;
+            position: relative; /* Для позиционирования логотипа */
+        }
+        
+        /* Логотип в правом верхнем углу */
+        .player-logo {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            max-width: 100px;
+            height: auto;
+            z-index: 1;
+        }
+        
+        /* Блок с обложкой */
+        .track-artwork {
+            width: var(--track-size);
+            height: var(--track-size);
+            background-size: cover;
+            background-position: center;
+            border-radius: 10px;
+            flex-shrink: 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            position: relative; /* Для позиционирования оверлея статуса */
+        }
+        
+        /* Блок информации о треке */
+        .track-info {
+            flex-grow: 1;
+            padding: 0 20px;
+            overflow: hidden;
+        }
+        
+        .track-program {
+            font-size: 14px;
+            color: var(--highlight-color);
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .track-artist {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: var(--text-color);
+        }
+        
+        .track-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: var(--text-color);
+        }
+        
+        /* Блок управления */
+        .player-controls {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+        
+        .play-button {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--accent-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            border: none;
+            outline: none;
+            transition: all 0.2s ease;
+            margin-right: 20px;
+            flex-shrink: 0;
+        }
+        
+        .play-button:hover {
+            transform: scale(1.05);
+            background-color: var(--secondary-accent);
+        }
+        
+        .play-button svg, .play-button i {
+            fill: var(--text-color);
+            color: var(--text-color);
+            font-size: 20px;
+        }
+        
+        .volume-control {
+            display: flex;
+            align-items: center;
+            flex-grow: 1;
+            max-width: 180px;
+            margin-right: 20px;
+        }
+        
+        .volume-control input {
+            width: 100%;
+            margin: 0 10px;
+            cursor: pointer;
+        }
+        
+        .volume-control i {
+            color: var(--text-color);
+            font-size: 16px;
+        }
+        
+        /* Кнопки для дополнительных функций */
+        .action-buttons {
+            display: flex;
+            margin-left: auto;
+        }
+        
+        .action-button {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            border: none;
+            outline: none;
+            transition: all 0.2s ease;
+            margin-left: 10px;
+            color: var(--text-color);
+            text-decoration: none;
+        }
+        
+        .action-button:hover {
+            background-color: var(--accent-color);
+        }
+        
+        .action-button i {
+            font-size: 16px;
+        }
+        
+        /* Индикатор статуса */
+        .status-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #f44336;
+        }
+        
+        .status-online {
+            background-color: #4CAF50;
+        }
+        
+        /* Попапы */
+        .history-popup, .track-info-popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: var(--primary-color);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        
+        .popup-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 10px;
+        }
+        
+        .popup-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-color);
+        }
+        
+        .close-popup {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            font-size: 20px;
+            cursor: pointer;
+        }
+        
+        .history-item {
+            display: flex;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            align-items: center;
+            position: relative;
+        }
+        
+        .history-artwork {
+            width: 60px;
+            height: 60px;
+            background-size: cover;
+            background-position: center;
+            border-radius: 5px;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        
+        .history-track-info {
+            flex-grow: 1;
+            overflow: hidden;
+            padding-right: 35px; /* Для иконки Spotify */
+        }
+        
+        .history-track-title {
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 3px;
+            color: var(--text-color);
+        }
+        
+        .history-track-time {
+            font-size: 12px;
+            color: rgba(245, 245, 220, 0.6); /* Semi-transparent Cream */
+        }
+        
+        .history-spotify {
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #1DB954; /* Spotify green */
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+        
+        .history-spotify:hover {
+            background-color: var(--accent-color);
+        }
+        
+        /* Фиксированный фон для попапов */
+        .popup-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(3px);
+            z-index: 999;
+        }
+        
+        /* Информация о треке (попап) */
+        .track-details {
+            margin-top: 20px;
+        }
+        
+        .detail-row {
+            margin-bottom: 15px;
+        }
+        
+        .detail-label {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 3px;
+        }
+        
+        .detail-value {
+            font-size: 16px;
+        }
+        
+        /* Адаптивность для маленьких экранов */
+        @media (max-width: 768px) {
+            .player-main {
+                flex-direction: column;
+            }
+            
+            .track-artwork {
+                margin-bottom: 20px;
+                width: 180px;
+                height: 180px;
+            }
+            
+            .track-info {
+                padding: 0;
+                text-align: center;
+                width: 100%;
+                margin-bottom: 20px;
+            }
+            
+            .player-controls {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .volume-control {
+                order: 3;
+                margin-top: 15px;
+                max-width: 100%;
+                width: 100%;
+            }
+            
+            .action-buttons {
+                margin-left: 0;
+            }
+        }
+        
+        @media (max-width: 500px) {
+            :root {
+                --track-size: 150px;
+            }
+            
+            .track-artist {
+                font-size: 16px;
+            }
+            
+            .track-title {
+                font-size: 20px;
+                margin-bottom: 15px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div id="now-playing-container" class="now-playing-container">Загрузка...</div>
-    <script src="script.js?v=14"></script>
+    <!-- Главный контейнер плеера -->
+    <div class="player-container">
+        <div class="player-main">
+            <!-- Блок с обложкой трека -->
+            <div class="track-artwork">
+                <div class="status-indicator" id="status-dot"></div>
+            </div>
+            
+            <!-- Логотип в правом верхнем углу -->
+            <img src="https://i.imgur.com/japL001.png" alt="coma.fm" class="player-logo">
+            
+            <!-- Блок с информацией и управлением -->
+            <div class="track-info">
+                <div class="track-program" id="track-program"></div>
+                <div class="track-artist" id="track-artist">Loading...</div>
+                <div class="track-title" id="track-title">Loading...</div>
+                
+                <div class="player-controls">
+                    <!-- Кнопка воспроизведения -->
+                    <button class="play-button" id="play-button">
+                        <i class="fas fa-play" id="play-icon"></i>
+                        <i class="fas fa-pause" id="pause-icon" style="display: none;"></i>
+                    </button>
+                    
+                    <!-- Регулятор громкости -->
+                    <div class="volume-control">
+                        <i class="fas fa-volume-up" id="volume-icon"></i>
+                        <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.8">
+                    </div>
+                    
+                    <!-- Дополнительные кнопки -->
+                    <div class="action-buttons">
+                        <button class="action-button" id="info-button" title="Track Info">
+                            <i class="fas fa-info"></i>
+                        </button>
+                        <button class="action-button" id="history-button" title="Track History">
+                            <i class="fas fa-history"></i>
+                        </button>
+                        <button class="action-button" id="spotify-button" title="Find on Spotify">
+                            <i class="fab fa-spotify"></i>
+                        </button>
+                        <a href="https://t.me/radiocoma" target="_blank" class="action-button" id="telegram-button" title="Our Telegram">
+                            <i class="fab fa-telegram-plane"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Фиксированный фон для попапов -->
+    <div class="popup-overlay" id="popup-overlay"></div>
+    
+    <!-- Попап с историей треков -->
+    <div class="history-popup" id="history-popup">
+        <div class="popup-header">
+            <div class="popup-title">Track History</div>
+            <button class="close-popup" id="close-history">×</button>
+        </div>
+        <div id="history-container">
+            <!-- История треков будет добавлена через JavaScript -->
+        </div>
+    </div>
+    
+    <!-- Попап с информацией о треке -->
+    <div class="track-info-popup" id="track-info-popup">
+        <div class="popup-header">
+            <div class="popup-title">Track Info</div>
+            <button class="close-popup" id="close-info">×</button>
+        </div>
+        <div class="track-details" id="track-details">
+            <!-- Информация о треке будет добавлена через JavaScript -->
+        </div>
+    </div>
+    
+    <!-- Скрытый аудио элемент -->
+    <audio id="audio-player" style="display: none;"></audio>
+    
+    <script>
+        // Основные переменные
+        const STATION_ID = 's4360dbc20';
+        const API_BASE = 'https://public.radio.co';
+        const STREAM_URL = `https://stream.radio.co/${STATION_ID}/listen`;
+        
+        // DOM-элементы
+        let audioPlayer;
+        const playButton = document.getElementById('play-button');
+        const playIcon = document.getElementById('play-icon');
+        const pauseIcon = document.getElementById('pause-icon');
+        const volumeSlider = document.getElementById('volume-slider');
+        const volumeIcon = document.getElementById('volume-icon');
+        const statusDot = document.getElementById('status-dot');
+        const trackProgram = document.getElementById('track-program');
+        const trackArtist = document.getElementById('track-artist');
+        const trackTitle = document.getElementById('track-title');
+        const trackArtwork = document.querySelector('.track-artwork');
+        const historyContainer = document.getElementById('history-container');
+        const historyButton = document.getElementById('history-button');
+        const infoButton = document.getElementById('info-button');
+        const spotifyButton = document.getElementById('spotify-button');
+        const historyPopup = document.getElementById('history-popup');
+        const trackInfoPopup = document.getElementById('track-info-popup');
+        const popupOverlay = document.getElementById('popup-overlay');
+        const closeHistory = document.getElementById('close-history');
+        const closeInfo = document.getElementById('close-info');
+        
+        // Состояние плеера
+        let currentTrack = null;
+        let refreshInterval;
+        let trackStartTime;
+        let stationStatus;
+        let isPlaying = false;
+        
+        // Инициализация плеера
+        function initPlayer() {
+            console.log('Initializing custom player...');
+            
+            // Создаем новый аудио-элемент вместо использования HTML-элемента
+            audioPlayer = new Audio();
+            audioPlayer.preload = 'none'; // Не предзагружать
+            audioPlayer.volume = volumeSlider.value;
+            
+            // Добавляем обработчики событий
+            playButton.addEventListener('click', togglePlay);
+            volumeSlider.addEventListener('input', updateVolume);
+            historyButton.addEventListener('click', showHistoryPopup);
+            infoButton.addEventListener('click', showTrackInfoPopup);
+            spotifyButton.addEventListener('click', openSpotify);
+            closeHistory.addEventListener('click', closePopups);
+            closeInfo.addEventListener('click', closePopups);
+            popupOverlay.addEventListener('click', closePopups);
+            
+            // Регистрируем обработчики для аудио
+            audioPlayer.addEventListener('play', function() {
+                console.log('Audio playback started');
+                playIcon.style.display = 'none';
+                pauseIcon.style.display = 'block';
+                isPlaying = true;
+            });
+            
+            audioPlayer.addEventListener('pause', function() {
+                console.log('Audio playback paused');
+                playIcon.style.display = 'block';
+                pauseIcon.style.display = 'none';
+                isPlaying = false;
+            });
+            
+            audioPlayer.addEventListener('error', function(e) {
+                console.error('Audio error:', e);
+                if (audioPlayer.error) {
+                    console.error('Error code:', audioPlayer.error.code);
+                    console.error('Error message:', audioPlayer.error.message);
+                }
+                playIcon.style.display = 'block';
+                pauseIcon.style.display = 'none';
+                isPlaying = false;
+            });
+            
+            // Начинаем получать данные
+            refreshData();
+            
+            // Обновляем данные каждые 15 секунд
+            refreshInterval = setInterval(refreshData, 15000);
+            
+            // Проверяем, есть ли сохраненная громкость
+            const savedVolume = localStorage.getItem('coma_player_volume');
+            if (savedVolume !== null) {
+                volumeSlider.value = savedVolume;
+                if (audioPlayer) {
+                    audioPlayer.volume = savedVolume;
+                }
+            }
+            
+            // Устанавливаем начальную иконку громкости
+            updateVolumeIcon();
+        }
+        
+        // Обновление всех данных (статус, текущий трек, история)
+        async function refreshData() {
+            try {
+                await fetchStationStatus();
+                await fetchTrackHistory();
+            } catch (error) {
+                console.error('Error refreshing data:', error);
+            }
+        }
+        
+        // Получение статуса станции
+        async function fetchStationStatus() {
+            try {
+                console.log(`Fetching station status from: ${API_BASE}/stations/${STATION_ID}/status`);
+                const response = await fetch(`${API_BASE}/stations/${STATION_ID}/status`);
+                
+                console.log('Status response:', response);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('Station status data:', data);
+                stationStatus = data;
+                
+                // Обновляем индикатор статуса
+                updateStatusIndicator(data.status);
+                
+                // Обновляем информацию о текущем треке
+                updateCurrentTrack(data.current_track);
+                
+                return data;
+            } catch (error) {
+                console.error('Error fetching station status:', error);
+                // Вместо генерации ошибки, устанавливаем "offline" статус
+                updateStatusIndicator('offline');
+            }
+        }
+        
+        // Получение истории треков
+        async function fetchTrackHistory() {
+            try {
+                console.log(`Fetching track history from: ${API_BASE}/stations/${STATION_ID}/history`);
+                const response = await fetch(`${API_BASE}/stations/${STATION_ID}/history`);
+                
+                console.log('History response:', response);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('Track history data:', data);
+                
+                // Обновляем блок истории
+                updateTrackHistory(data.tracks);
+                
+                return data;
+            } catch (error) {
+                console.error('Error fetching track history:', error);
+                // Устанавливаем пустую историю
+                historyContainer.innerHTML = '<div class="error-message">История треков недоступна</div>';
+            }
+        }
+        
+        // Обновление индикатора статуса
+        function updateStatusIndicator(status) {
+            statusDot.className = 'status-indicator';
+            if (status === 'online') {
+                statusDot.classList.add('status-online');
+            }
+        }
+        
+        // Обновление информации о текущем треке
+        function updateCurrentTrack(track) {
+            if (!track) {
+                trackProgram.textContent = '';
+                trackArtist.textContent = 'Information unavailable';
+                trackTitle.textContent = '';
+                trackArtwork.style.backgroundImage = `url('https://via.placeholder.com/200/202020/FFFFFF?text=coma.fm')`;
+                return;
+            }
+            
+            // Проверяем, изменился ли трек
+            if (currentTrack && currentTrack.start_time === track.start_time) {
+                return; // Трек не изменился, не обновляем UI
+            }
+            
+            // Сохраняем новый текущий трек
+            currentTrack = track;
+            trackStartTime = new Date(track.start_time);
+            
+            // Здесь убираем отображение статуса "Эфир"
+            trackProgram.textContent = '';
+            
+            // Разделяем название трека на исполнителя и название
+            const trackParts = parseTrackTitle(track.title || 'Unknown track');
+            
+            // Обновляем UI
+            trackArtist.textContent = trackParts.artist;
+            trackTitle.textContent = trackParts.title;
+            trackArtwork.style.backgroundImage = `url('${track.artwork_url_large || track.artwork_url || 'https://via.placeholder.com/200/202020/FFFFFF?text=coma.fm'}')`;
+            
+            // Обновляем попап с информацией о треке, если он открыт
+            updateTrackInfoPopup();
+        }
+        
+        // Парсинг названия трека на исполнителя и название
+        function parseTrackTitle(trackTitle) {
+            // Ищем разделитель в названии
+            const separators = [' - ', ' – ', ' — ', ' | ', ': '];
+            let artist = 'Unknown artist';
+            let title = trackTitle;
+            
+            for (const separator of separators) {
+                if (trackTitle.includes(separator)) {
+                    const parts = trackTitle.split(separator);
+                    artist = parts[0].trim();
+                    title = parts.slice(1).join(separator).trim();
+                    break;
+                }
+            }
+            
+            return { artist, title };
+        }
+        
+        // Обновление блока истории треков
+        function updateTrackHistory(tracks) {
+            if (!tracks || tracks.length === 0) {
+                historyContainer.innerHTML = '<div class="error-message">Track history unavailable</div>';
+                return;
+            }
+            
+            historyContainer.innerHTML = '';
+            
+            tracks.forEach(track => {
+                const trackTime = new Date(track.start_time);
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                
+                const trackParts = parseTrackTitle(track.title || 'Unknown track');
+                const searchQuery = encodeURIComponent(`${trackParts.artist} ${trackParts.title}`);
+                
+                historyItem.innerHTML = `
+                    <div class="history-artwork" style="background-image: url('${track.artwork_url || 'https://via.placeholder.com/60/202020/FFFFFF?text=coma.fm'}')"></div>
+                    <div class="history-track-info">
+                        <div class="history-track-title">${trackParts.artist} - ${trackParts.title}</div>
+                        <div class="history-track-time">${formatTime(trackTime)}</div>
+                    </div>
+                    <a href="https://open.spotify.com/search/${searchQuery}" target="_blank" class="history-spotify" title="Find on Spotify">
+                        <i class="fab fa-spotify"></i>
+                    </a>
+                `;
+                
+                historyContainer.appendChild(historyItem);
+            });
+        }
+        
+        // Переключение воспроизведения
+        function togglePlay() {
+            console.log('Toggle play clicked, current state:', isPlaying);
+            
+            if (isPlaying) {
+                audioPlayer.pause();
+                if (audioPlayer.readyState > 0) {
+                    audioPlayer.currentTime = 0;
+                }
+                audioPlayer.src = '';
+                playIcon.style.display = 'block';
+                pauseIcon.style.display = 'none';
+                isPlaying = false;
+            } else {
+                try {
+                    // Создаем новый аудио элемент
+                    audioPlayer = new Audio();
+                    audioPlayer.volume = volumeSlider.value;
+                    
+                    // Добавляем обработчики событий
+                    audioPlayer.onplay = function() {
+                        console.log('Playback started');
+                        playIcon.style.display = 'none';
+                        pauseIcon.style.display = 'block';
+                        isPlaying = true;
+                    };
+                    
+                    audioPlayer.onpause = function() {
+                        console.log('Playback paused');
+                        playIcon.style.display = 'block';
+                        pauseIcon.style.display = 'none';
+                        isPlaying = false;
+                    };
+                    
+                    audioPlayer.onerror = function(e) {
+                        console.error('Playback error:', e);
+                        playIcon.style.display = 'block';
+                        pauseIcon.style.display = 'none';
+                        isPlaying = false;
+                    };
+                    
+                    // Устанавливаем источник
+                    audioPlayer.src = STREAM_URL;
+                    
+                    // Пробуем воспроизвести
+                    console.log('Starting playback with URL:', STREAM_URL);
+                    audioPlayer.play().catch(error => {
+                        console.error('Auto-play was prevented by the browser:', error);
+                    });
+                } catch (error) {
+                    console.error('Exception during playback:', error);
+                }
+            }
+        }
+        
+        // Обновление громкости
+        function updateVolume() {
+            if (audioPlayer) {
+                audioPlayer.volume = volumeSlider.value;
+            }
+            
+            // Обновляем иконку громкости в зависимости от уровня
+            updateVolumeIcon();
+            
+            // Сохраняем громкость в localStorage для следующих сессий
+            localStorage.setItem('coma_player_volume', volumeSlider.value);
+        }
+        
+        // Обновление иконки громкости в зависимости от уровня
+        function updateVolumeIcon() {
+            const volume = volumeSlider.value;
+            
+            if (volume === 0) {
+                volumeIcon.className = 'fas fa-volume-mute';
+            } else if (volume < 0.5) {
+                volumeIcon.className = 'fas fa-volume-down';
+            } else {
+                volumeIcon.className = 'fas fa-volume-up';
+            }
+        }
+        
+        // Форматирование времени
+        function formatTime(date) {
+            return date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+        }
+        
+        // Форматирование даты
+        function formatDate(date) {
+            return date.toLocaleDateString('ru-RU', { 
+                day: 'numeric', 
+                month: 'long', 
+                year: 'numeric',
+                hour: 'numeric',
+                minute: 'numeric'
+            });
+        }
+        
+        // Показать попап с историей треков
+        function showHistoryPopup() {
+            historyPopup.style.display = 'block';
+            popupOverlay.style.display = 'block';
+        }
+        
+        // Обновление и показ попапа с информацией о треке
+        function showTrackInfoPopup() {
+            updateTrackInfoPopup();
+            trackInfoPopup.style.display = 'block';
+            popupOverlay.style.display = 'block';
+        }
+        
+        // Обновление информации в попапе с данными о треке
+        function updateTrackInfoPopup() {
+            const trackDetails = document.getElementById('track-details');
+            
+            if (!currentTrack) {
+                trackDetails.innerHTML = '<div class="error-message">Track information unavailable</div>';
+                return;
+            }
+            
+            const trackParts = parseTrackTitle(currentTrack.title || 'Unknown track');
+            const startTime = new Date(currentTrack.start_time);
+            
+            trackDetails.innerHTML = `
+                <div class="detail-row">
+                    <div class="detail-label">Artist</div>
+                    <div class="detail-value">${trackParts.artist}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Title</div>
+                    <div class="detail-value">${trackParts.title}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Start time</div>
+                    <div class="detail-value">${formatDate(startTime)}</div>
+                </div>
+            `;
+        }
+        
+        // Открытие Spotify с поиском трека
+        function openSpotify() {
+            if (!currentTrack) return;
+            
+            const trackParts = parseTrackTitle(currentTrack.title || 'Неизвестный трек');
+            const searchQuery = encodeURIComponent(`${trackParts.artist} ${trackParts.title}`);
+            const spotifyUrl = `https://open.spotify.com/search/${searchQuery}`;
+            
+            window.open(spotifyUrl, '_blank');
+        }
+        
+        // Закрытие всех попапов
+        function closePopups() {
+            historyPopup.style.display = 'none';
+            trackInfoPopup.style.display = 'none';
+            popupOverlay.style.display = 'none';
+        }
+        
+        // Запускаем плеер при загрузке страницы
+        window.addEventListener('DOMContentLoaded', initPlayer);
+        
+        // Очищаем интервал при закрытии страницы
+        window.addEventListener('beforeunload', () => {
+            clearInterval(refreshInterval);
+        });
+    </script>
+
+<audio id="radio-audio" src="https://stream.radio.co/s213997" crossorigin="anonymous"></audio>
+<script>
+  const audio = document.getElementById("radio-audio");
+  audio.play().catch(() => console.log("Autoplay blocked"));
+  const ctx = new AudioContext();
+  const src = ctx.createMediaElementSource(audio);
+  const analyser = ctx.createAnalyser();
+  src.connect(analyser);
+  analyser.connect(ctx.destination);
+  analyser.fftSize = 256;
+  const bufferLength = analyser.frequencyBinCount;
+  const dataArray = new Uint8Array(bufferLength);
+
+  const blobs = document.querySelectorAll('.lava-blob');
+  function animate() {
+    requestAnimationFrame(animate);
+    analyser.getByteFrequencyData(dataArray);
+    const average = dataArray.reduce((a, b) => a + b, 0) / bufferLength;
+    const scale = 1 + average / 256;
+    blobs.forEach(blob => {
+      blob.style.transform = `scale(${scale})`;
+    });
+  }
+  animate();
+</script>
+
+</body>
+</html>
+  </div>
+  <script>
+        const container = document.querySelector('.lava-container');
+        const colors = [
+            '#8b0046', // Глубокий малиновый
+            '#004b8c', // Глубокий синий
+            '#4b0082', // Индиго
+            '#006400', // Темно-зеленый
+            '#800080', // Пурпурный
+            '#00458b', // Темно-голубой
+            '#8b4500', // Темно-оранжевый
+            '#2f4f4f'  // Темно-бирюзовый
+        ];
+        
+        // Создаем максимум 5 дополнительных блобов, независимо от размера экрана
+        const maxExtraBlobs = 5;
+        const extraBlobsCount = Math.min(
+            Math.floor(Math.max(window.innerWidth, window.innerHeight) / 600) + 1,
+            maxExtraBlobs
+        );
+        
+        // Создаем дополнительные блобы только при начальной загрузке
+        for (let i = 0; i < extraBlobsCount; i++) {
+            const blob = document.createElement('div');
+            blob.className = 'lava-blob';
+            
+            // Делаем дополнительные блобы меньше основных
+            const size = Math.random() * 15 + 15 + 'vw';
+            blob.style.width = size;
+            blob.style.height = size;
+            
+            blob.style.background = colors[Math.floor(Math.random() * colors.length)];
+            
+            // Создаем для них простые анимации через CSS
+            blob.style.left = Math.random() * 70 + 10 + 'vw';
+            blob.style.top = Math.random() * 70 + 10 + 'vh';
+            
+            // Добавляем простую анимацию пульсации
+            const duration = (Math.random() * 5 + 20) + 's';
+            const delay = (Math.random() * -15) + 's';
+            blob.style.animation = `float${i % 4 + 1} ${duration} ease-in-out infinite`;
+            blob.style.animationDelay = delay;
+            
+            container.appendChild(blob);
+        }
+
+        // Никаких обработчиков движения мыши - это просто статический экран
+    </script>
+
+<audio id="radio-audio" src="https://stream.radio.co/s213997" crossorigin="anonymous"></audio>
+<script>
+  const audio = document.getElementById("radio-audio");
+  audio.play().catch(() => console.log("Autoplay blocked"));
+  const ctx = new AudioContext();
+  const src = ctx.createMediaElementSource(audio);
+  const analyser = ctx.createAnalyser();
+  src.connect(analyser);
+  analyser.connect(ctx.destination);
+  analyser.fftSize = 256;
+  const bufferLength = analyser.frequencyBinCount;
+  const dataArray = new Uint8Array(bufferLength);
+
+  const blobs = document.querySelectorAll('.lava-blob');
+  function animate() {
+    requestAnimationFrame(animate);
+    analyser.getByteFrequencyData(dataArray);
+    const average = dataArray.reduce((a, b) => a + b, 0) / bufferLength;
+    const scale = 1 + average / 256;
+    blobs.forEach(blob => {
+      blob.style.transform = `scale(${scale})`;
+    });
+  }
+  animate();
+</script>
+
 </body>
 </html>
