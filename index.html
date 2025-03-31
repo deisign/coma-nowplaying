@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <link rel="manifest" href="manifest.json">
   <meta charset="UTF-8">
   <title>coma.fm</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -147,6 +148,7 @@
             <!DOCTYPE html>
 <html lang="ru">
 <head>
+  <link rel="manifest" href="manifest.json">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>coma.fm Player</title>
@@ -1071,6 +1073,15 @@
   animate();
 </script>
 
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js')
+      .then(() => console.log("✅ Service Worker Registered"))
+      .catch(err => console.error("❌ SW Error:", err));
+  }
+</script>
+
 </body>
 </html>
   </div>
@@ -1146,6 +1157,15 @@
     });
   }
   animate();
+</script>
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js')
+      .then(() => console.log("✅ Service Worker Registered"))
+      .catch(err => console.error("❌ SW Error:", err));
+  }
 </script>
 
 </body>
