@@ -29,8 +29,8 @@ def build_top_json(df):
 
 if __name__ == "__main__":
     if not os.path.exists(INPUT_FILE):
-        print(f"Missing file: {INPUT_FILE}")
-        exit(1)
+        print(f"Missing file: {INPUT_FILE} — nothing to do.")
+        exit(0)
 
     df = load_tracks()
     top_data = build_top_json(df)
