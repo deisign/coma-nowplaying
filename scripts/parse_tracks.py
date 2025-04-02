@@ -45,9 +45,12 @@ if __name__ == "__main__":
     os.makedirs("data", exist_ok=True)
     csv_path = "data/tracks.csv"
 
-    if os.path.exists(csv_path):
-        df_old = pd.read_csv(csv_path)
-        df = pd.concat([df_old, df]).drop_duplicates(subset=["timestamp", "artist", "title"])
+    if not df.empty:
+        if os.path.exists(csv_path):
+            df_old = pd.read_csv(csv_path)
+            df = pd.concat([df_old, df]).drop_duplicates(subset=["timestamp", "artist", "title"])
 
-    df.sort_values(by="timestamp").to_csv(csv_path, index=False)
-    print(f"Saved {len(df)} total tracks to {csv_path}")
+        df.sort_values(by="timestamp").to_csv(csv_path, index=False)
+        print(f"Saved {len(df)} total tracks to {csv_path}")
+    else:
+        print("No tracks found — empty dataset.")
