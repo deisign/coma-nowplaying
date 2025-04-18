@@ -78,3 +78,14 @@ audio {
     max-width: 300px;
     border-radius: 8px;
 }
+/* miniapp/styles.css  – добавь в конец файла */
+@media (min-width: 415px) {
+    html, body {
+      width: 414px;      /* жёсткая ширина “мобильного” */
+      margin: 0 auto;    /* центрируем в окне Desktop */
+      border-radius: 12px;
+      overflow: hidden;  /* убираем пустоты по бокам */
+      background: #000;  /* или var(--color-bg) */
+    }
+  }
+  
