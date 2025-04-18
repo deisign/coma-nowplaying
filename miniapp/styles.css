@@ -1,0 +1,80 @@
+/* ✅ Фиксируем ширину веблета на 350px */
+.now-playing-container {
+    width: 350px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-family: "Arial", sans-serif;
+    padding: 20px;
+    background: #1e1e1e;
+    color: white;
+    border-radius: 12px;
+    margin: 50px auto;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+    transition: background 0.5s ease-in-out;
+    position: relative;
+}
+
+/* ✅ Настройки для обложки альбома */
+.album-art {
+    width: 200px;
+    height: 200px;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    transition: transform 0.3s ease-in-out;
+}
+
+.album-art:hover {
+    transform: scale(1.05);
+}
+
+/* ✅ Стили для названия трека и исполнителя */
+.track-info h3 {
+    font-size: 20px;
+    margin: 5px 0;
+    font-weight: bold;
+}
+
+.track-info p {
+    font-size: 16px;
+    opacity: 0.8;
+}
+
+/* ✅ Полностью убираем фон у кнопки Spotify */
+.spotify-button {
+    display: inline-block;
+    background: none; /* Фон полностью убран */
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    margin-top: 10px;
+}
+
+/* ✅ Делаем иконку белой и убираем круг */
+.spotify-icon svg {
+    width: 40px;
+    height: 40px;
+    fill: white; /* Чисто белый цвет */
+    transition: opacity 0.3s ease-in-out;
+}
+
+/* ✅ При наведении иконка просто немного тускнеет */
+.spotify-icon svg:hover {
+    opacity: 0.6;
+}
+
+/* ✅ Стили для аудиоплеера */
+.audio-container {
+    margin-top: 10px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+audio {
+    width: 90%;
+    max-width: 300px;
+    border-radius: 8px;
+}
