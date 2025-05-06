@@ -754,30 +754,7 @@
 </div>
 </div>
 </div>
-
-
 </div>
-<div style="display:flex;justify-content:center;margin-top:24px;">
-<div id="ambience-mixer" style="display:flex; align-items:center; gap:8px; background:rgba(0,0,0,0.75); padding:6px 12px; border-radius:12px; color:#fff; font-family:inherit; font-size:14px; width:fit-content; z-index:1000">
-  <label for="ambienceSelect" style="margin-right:6px;">Ambience:</label>
-  <select id="ambienceSelect" style="padding:2px 6px;border-radius:6px;">
-    <option value="">no ambience</option>
-    <option value="cafe">cafe</option>
-    <option value="city">city</option>
-    <option value="film">film</option>
-    <option value="fireplace">fireplace</option>
-    <option value="forest">forest</option>
-    <option value="rain">rain</option>
-    <option value="station">station</option>
-    <option value="train">train</option>
-    <option value="vinyl">vinyl</option>
-    <option value="waves">waves</option>
-</select>
-  <button id="ambiencePlayPause" style="background:none;border:none;color:#fff;font-size:16px;cursor:pointer;">⏯</button>
-  <input type="range" id="ambienceVolume" min="0" max="1" step="0.01" value="0.8" style="width:120px;">
-</div>
-</div>
-
 <div class="popup-overlay" id="popup-overlay"></div>
 <div class="history-popup" id="history-popup">
 <div class="popup-header">
@@ -1886,7 +1863,23 @@ document.addEventListener("DOMContentLoaded", function () {
 </script>
 </body>
 </html>
-
+<div id="ambience-mixer" style="margin-top: 12px; display: flex; gap: 8px; align-items: center; background: rgba(0, 0, 0, 0.4); padding: 6px 10px; border-radius: 12px; font-family: 'Space Grotesk', sans-serif; font-size: 14px; color: #fff; width: fit-content;">
+  <label for="ambienceSelect" style="margin-right: 6px;">Ambience:</label>
+  <select id="ambienceSelect" style="padding: 2px 6px; border-radius: 6px;">
+    <option value="">no ambience</option>
+    <option value="cafe">cafe</option>
+    <option value="city">city</option>
+    <option value="film">film</option>
+    <option value="fireplace">fireplace</option>
+    <option value="forest">forest</option>
+    <option value="rain">rain</option>
+    <option value="station">station</option>
+    <option value="train">train</option>
+    <option value="vinyl">vinyl</option>
+    <option value="waves">waves</option>
+  </select>
+  <input type="range" id="ambienceVolume" min="0" max="1" step="0.01" value="0.5" style="width: 100px;" />
+</div>
 <script>
   const ambience = new Audio();
   ambience.loop = true;

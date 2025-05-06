@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>coma.fm Player</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    
+    <style>
+        /* CSS Variables */
+        :root {
+            --primary-color: rgba(51, 51, 51, 0.8);
+            --text-color: #f5f5dc;
+            --accent-color: #d94f00;
+            --secondary-accent: #e1b80d;
+            --highlight-color: #4caba7;
+            --track-size: 200px;
+        }
+        
+        /* Lava Background */
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #000;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        
+        .lava-container {
+            position: fixed;
+            width: 100vw;
+            height: 100vh;
+            background: #000;
+            contain: layout size;
+        }
+
+        .lava-blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(calc(1.5vw + 1.5vh));
+            mix-blend-mode: screen;
+            opacity: 0.6;
+            will-change: transform;
+            transform: translateZ(0);
+        }
+
+        .blob1 {
+            width: 30vw;
+            height: 30vw;
+            background: #8b0046;
+            animation: float1 25s ease-in-out infinite;
+        }
+
+        .blob2 {
+            width: 35vw;
+            height: 35vw;
+            background: #004b8c;
+            animation: float2 28s ease-in-out infinite;
+        }
+
+        .blob3 {
+            width: 25vw;
+            height: 25vw;
+            background: #4b0082;
+            animation: float3 24s ease-in-out infinite;
+        }
+
+        .blob4 {
+            width: 40vw;
+            height: 40vw;
+            background: #006400;
+            animation: float4 30s ease-in-out infinite;
+        }
+
+        @keyframes float1 {
+            0% { transform: translate(10vw, 10vh) scale(1) translateZ(0); }
+            25% { transform: translate(60vw, 30vh) scale(1.1) translateZ(0); }
+            50% { transform: translate(50vw, 60vh) scale(0.9) translateZ(0); }
+            75% { transform: translate(20vw, 40vh) scale(1.05) translateZ(0); }
+            100% { transform: translate(10vw, 10vh) scale(1) translateZ(0); }
+        }
+
+        @keyframes float2 {
+            0% { transform: translate(60vw, 20vh) scale(1) translateZ(0); }
+            30% { transform: translate(20vw, 40vh) scale(1.1) translateZ(0); }
+            60% { transform: translate(40vw, 60vh) scale(0.9) translateZ(0); }
+            100% { transform: translate(60vw, 20vh) scale(1) translateZ(0); }
+        }
+
+        @keyframes float3 {
+            0% { transform: translate(30vw, 70vh) scale(1) translateZ(0); }
+            40% { transform: translate(70vw, 30vh) scale(1.05) translateZ(0); }
+            80% { transform: translate(20vw, 50vh) scale(0.95) translateZ(0); }
+            100% { transform: translate(30vw, 70vh) scale(1) translateZ(0); }
+        }
+
+        @keyframes float4 {
+            0% { transform: translate(70vw, 60vh) scale(1) translateZ(0); }
+            33% { transform: translate(20vw, 20vh) scale(1.1) translateZ(0); }
+            66% { transform: translate(50vw, 40vh) scale(0.9) translateZ(0); }
+            100% { transform: translate(70vw, 60vh) scale(1) translateZ(0); }
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.4) 100%);
+            pointer-events: none;
+        }
+        
+        /* Main Player Wrapper */
+        .main-player-wrapper {
+            position: fixed;
+            bottom: 150px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            justify-content: center;
+        }
+        
+        /* Player Container */
+        .player-container {
+            background-color: var(--primary-color);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            width: 100%;
+            max-width: 900px;
+            margin: 20px;
+            transition: all 0.3s ease;
+            padding: 0;
+        }
+        
+        /* Main player section */
+        .player-main {
+            display: flex;
+            padding: 20px;
+            align-items: center;
+            position: relative;
+            box-sizing: border-box;
+            padding-right: 20px;
+        }
+        
+        /* Logo positioning */
+        .player-logo {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            max-width: 80px;
+            height: auto;
+            z-index: 1;
+        }
+        
+        /* Artwork container */
+        .track-artwork {
+            width: var(--track-size);
+            height: var(--track-size);
+            background-size: cover;
+            background-position: center;
+            border-radius: 10px;
+            flex-shrink: 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            position: relative;
+            margin: 0;
+        }
+        
+        /* Track info container */
+        .track-info {
+            flex-grow: 1;
+            padding: 0 20px;
+            overflow: hidden;
+        }
+        
+        .track-program {
+            font-size: 14px;
+            color: var(--highlight-color);
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .track-artist {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: var(--text-color);
+        }
+        
+        .track-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: var(--text-color);
+        }
+        
+        /* Player controls */
+        .player-controls {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+        
+        .play-button {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--accent-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            border: none;
+            outline: none;
+            transition: all 0.2s ease;
+            margin-right: 20px;
+            flex-shrink: 0;
+        }
+        
+        .play-button:hover {
+            transform: scale(1.05);
+            background-color: var(--secondary-accent);
+        }
+        
+        .play-button svg, .play-button i {
+            fill: var(--text-color);
+            color: var(--text-color);
+            font-size: 20px;
+        }
+        
+        .volume-control {
+            display: flex;
+            align-items: center;
+            flex-grow: 1;
+            max-width: 180px;
+            margin-right: 20px;
+        }
+        
+        .volume-control input {
+            width: 100%;
+            margin: 0 10px;
+            cursor: pointer;
+        }
+        
+        .volume-control i {
+            color: var(--text-color);
+            font-size: 16px;
+        }
+        
+        /* Action buttons */
+        .action-buttons {
+            display: flex;
+            margin-left: auto;
+        }
+        
+        .action-button {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            border: none;
+            outline: none;
+            transition: all 0.2s ease;
+            margin-left: 10px;
+            color: var(--text-color);
+        }
+        
+        .action-button:hover {
+            background-color: var(--accent-color);
+        }
+        
+        .action-button i {
+            font-size: 16px;
+        }
+        
+        /* Status indicator */
+        .status-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #f44336;
+        }
+        
+        .status-online {
+            background-color: #4CAF50;
+        }
+        
+        /* Ambience mixer */
+        #ambience-mixer {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            background: var(--primary-color);
+            backdrop-filter: blur(10px);
+            padding: 6px 10px;
+            border-radius: 15px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 14px;
+            color: var(--text-color);
+            width: fit-content;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        #ambience-mixer select {
+            padding: 2px 6px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-color);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        #ambience-mixer input[type="range"] {
+            width: 100px;
+        }
+
+        #ambience-mixer label {
+            margin-right: 6px;
+            color: rgba(245, 245, 220, 0.6);
+        }
+    </style>
+</head>
+<body>
+    <!-- Lava background -->
+    <div class="lava-container">
+        <div class="lava-blob blob1"></div>
+        <div class="lava-blob blob2"></div>
+        <div class="lava-blob blob3"></div>
+        <div class="lava-blob blob4"></div>
+        <div class="overlay"></div>
+    </div>
+
+    <!-- Main player wrapper -->
+    <div class="main-player-wrapper">
+        <!-- Player container -->
+        <div class="player-container">
+            <div class="player-main">
+                <div class="track-artwork">
+                    <div class="status-indicator" id="status-dot"></div>
+                </div>
+                <img alt="coma.fm" class="player-logo" src="https://i.imgur.com/japL001.png"/>
+                <div class="track-info">
+                    <div class="track-program" id="track-program"></div>
+                    <div class="track-artist" id="track-artist">Loading...</div>
+                    <div class="track-title" id="track-title">Loading...</div>
+                    <div class="player-controls">
+                        <button class="play-button" id="play-button">
+                            <i class="fas fa-play" id="play-icon"></i>
+                            <i class="fas fa-pause" id="pause-icon" style="display: none;"></i>
+                        </button>
+                        <div class="volume-control">
+                            <i class="fas fa-volume-up" id="volume-icon"></i>
+                            <input id="volume-slider" max="1" min="0" step="0.01" type="range" value="0.8"/>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="action-button" id="info-button" title="Track Info">
+                                <i class="fas fa-info"></i>
+                            </button>
+                            <button class="action-button" id="history-button" title="Track History">
+                                <i class="fas fa-history"></i>
+                            </button>
+                            <button class="action-button" id="schedule-button" title="Schedule">
+                                <i class="fas fa-calendar-alt"></i>
+                            </button>
+                            <button class="action-button" id="spotify-button" title="Find on Spotify">
+                                <i class="fab fa-spotify"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ambience mixer -->
+        <div id="ambience-mixer">
+            <label for="ambienceSelect">Ambience:</label>
+            <select id="ambienceSelect">
+                <option value="">no ambience</option>
+                <option value="cafe">cafe</option>
+                <option value="city">city</option>
+                <option value="film">film</option>
+                <option value="fireplace">fireplace</option>
+                <option value="forest">forest</option>
+                <option value="rain">rain</option>
+                <option value="station">station</option>
+                <option value="train">train</option>
+                <option value="vinyl">vinyl</option>
+                <option value="waves">waves</option>
+            </select>
+            <input type="range" id="ambienceVolume" min="0" max="1" step="0.01" value="0.5">
+        </div>
+    </div>
+
+    <script>
+        // Station configuration
+        const STATION_ID = 's4360dbc20';
+        const API_BASE = 'https://public.radio.co';
+        const STREAM_URL = `https://stream.radio.co/${STATION_ID}/listen`;
+        
+        // Player elements
+        let audioPlayer;
+        const playButton = document.getElementById('play-button');
+        const playIcon = document.getElementById('play-icon');
+        const pauseIcon = document.getElementById('pause-icon');
+        const volumeSlider = document.getElementById('volume-slider');
+        const volumeIcon = document.getElementById('volume-icon');
+        const statusDot = document.getElementById('status-dot');
+        const trackProgram = document.getElementById('track-program');
+        const trackArtist = document.getElementById('track-artist');
+        const trackTitle = document.getElementById('track-title');
+        const trackArtwork = document.querySelector('.track-artwork');
+        
+        let currentTrack = null;
+        let refreshInterval;
+        let isPlaying = false;
+
+        // Initialize player
+        function initPlayer() {
+            console.log('Initializing player...');
+            
+            // Initialize audio player
+            audioPlayer = new Audio();
+            audioPlayer.preload = 'none';
+            
+            // Restore volume
+            const savedVolume = localStorage.getItem('coma_player_volume');
+            if (savedVolume !== null) {
+                volumeSlider.value = savedVolume;
+            }
+            audioPlayer.volume = volumeSlider.value;
+            
+            // Add event listeners
+            playButton.addEventListener('click', togglePlay);
+            volumeSlider.addEventListener('input', updateVolume);
+            
+            // Audio player event handlers
+            audioPlayer.addEventListener('play', function() {
+                playIcon.style.display = 'none';
+                pauseIcon.style.display = 'block';
+                isPlaying = true;
+            });
+            
+            audioPlayer.addEventListener('pause', function() {
+                playIcon.style.display = 'block';
+                pauseIcon.style.display = 'none';
+                isPlaying = false;
+            });
+            
+            audioPlayer.addEventListener('error', function(e) {
+                console.error('Audio error:', e);
+                playIcon.style.display = 'block';
+                pauseIcon.style.display = 'none';
+                isPlaying = false;
+            });
+            
+            // Start fetching data
+            refreshData();
+            
+            // Update data every 15 seconds
+            refreshInterval = setInterval(refreshData, 15000);
+        }
+        
+        // Refresh data
+        async function refreshData() {
+            try {
+                await fetchStationStatus();
+                updateProgramInfo();
+            } catch (error) {
+                console.error('Error refreshing data:', error);
+                trackArtist.textContent = 'Error loading data';
+                trackTitle.textContent = 'Please try again later';
+            }
+        }
+        
+        // Fetch station status
+        async function fetchStationStatus() {
+            try {
+                const response = await fetch(`${API_BASE}/stations/${STATION_ID}/status`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                // Update status indicator
+                updateStatusIndicator(data.status);
+                
+                // Update current track information
+                updateCurrentTrack(data.current_track);
+                
+                return data;
+            } catch (error) {
+                console.error('Error fetching station status:', error);
+                updateStatusIndicator('offline');
+                throw error;
+            }
+        }
+        
+        // Update status indicator
+        function updateStatusIndicator(status) {
+            statusDot.className = 'status-indicator';
+            if (status === 'online') {
+                statusDot.classList.add('status-online');
+            } else {
+                statusDot.classList.add('status-offline');
+            }
+        }
+        
+        // Parse track title to get artist and title
+        function parseTrackTitle(trackTitle) {
+            // Look for separator in title
+            const separators = [' - ', ' – ', ' — ', ' | ', ': '];
+            let artist = 'Unknown artist';
+            let title = trackTitle;
+            
+            for (const separator of separators) {
+                if (trackTitle.includes(separator)) {
+                    const parts = trackTitle.split(separator);
+                    artist = parts[0].trim();
+                    title = parts.slice(1).join(separator).trim();
+                    break;
+                }
+            }
+            
+            return { artist, title };
+        }
+        
+        // Update current track information
+        function updateCurrentTrack(track) {
+            if (!track) {
+                trackArtist.textContent = 'Information unavailable';
+                trackTitle.textContent = '';
+                trackArtwork.style.backgroundImage = `url('https://via.placeholder.com/240/202020/FFFFFF?text=coma.fm')`;
+                return;
+            }
+            
+            // Check if track has changed
+            if (currentTrack && currentTrack.start_time === track.start_time) {
+                return; // Track hasn't changed, don't update UI
+            }
+            
+            // Save new current track
+            currentTrack = track;
+            
+            // Parse track title
+            const trackParts = parseTrackTitle(track.title || 'Unknown track');
+            
+            // Update info
+            trackArtist.textContent = trackParts.artist;
+            trackTitle.textContent = trackParts.title;
+            trackArtwork.style.backgroundImage = `url('${track.artwork_url_large || track.artwork_url || 'https://via.placeholder.com/240/202020/FFFFFF?text=coma.fm'}')`;
+        }
+        
+        // Update program info
+        function updateProgramInfo() {
+            const now = new Date();
+            const hours = now.getHours();
+            
+            // Simple program detection based on hour
+            if (hours >= 1 && hours < 2) {
+                trackProgram.textContent = "Space Age Pop";
+            } else if (hours >= 2 && hours < 3) {
+                trackProgram.textContent = "Heroes";
+            } else if (hours >= 3 && hours < 4) {
+                trackProgram.textContent = "Juke Box";
+            } else {
+                trackProgram.textContent = "Music Non Stop";
+            }
+        }
+        
+        // Toggle playback
+        function togglePlay() {
+            if (isPlaying) {
+                audioPlayer.pause();
+                if (audioPlayer.readyState > 0) {
+                    audioPlayer.currentTime = 0;
+                }
+                audioPlayer.src = '';
+                playIcon.style.display = 'block';
+                pauseIcon.style.display = 'none';
+                isPlaying = false;
+            } else {
+                audioPlayer = new Audio();
+                audioPlayer.volume = volumeSlider.value;
+                audioPlayer.src = STREAM_URL;
+                audioPlayer.play().catch(error => {
+                    console.log('Auto-play was prevented by the browser');
+                });
+            }
+        }
+        
+        // Update volume
+        function updateVolume() {
+            if (audioPlayer) {
+                audioPlayer.volume = volumeSlider.value;
+            }
+            localStorage.setItem('coma_player_volume', volumeSlider.value);
+            updateVolumeIcon();
+        }
+        
+        // Update volume icon
+        function updateVolumeIcon() {
+            const volume = parseFloat(volumeSlider.value);
+            volumeIcon.className = 'fas';
+            
+            if (volume === 0) {
+                volumeIcon.classList.add('fa-volume-mute');
+            } else if (volume < 0.5) {
+                volumeIcon.classList.add('fa-volume-down');
+            } else {
+                volumeIcon.classList.add('fa-volume-up');
+            }
+        }
+        
+        // Start player when page loads
+        window.addEventListener('DOMContentLoaded', initPlayer);
+        
+        // Clear interval when page closes
+        window.addEventListener('beforeunload', () => {
+            clearInterval(refreshInterval);
+        });
+        
+        // Ambience mixer script
+        const ambience = new Audio();
+        ambience.loop = true;
+        ambience.volume = 0.5;
+        const ambienceSelect = document.getElementById("ambienceSelect");
+        const ambienceVolume = document.getElementById("ambienceVolume");
+
+        ambienceSelect.addEventListener("change", () => {
+            ambience.pause();
+            if (ambienceSelect.value) {
+                ambience.src = `./ambience/${ambienceSelect.value}.mp3`;
+                ambience.play().catch(() => {});
+            }
+        });
+        
+        ambienceVolume.addEventListener("input", () => {
+            ambience.volume = ambienceVolume.value;
+        });
+    </script>
+</body>
+</html>
