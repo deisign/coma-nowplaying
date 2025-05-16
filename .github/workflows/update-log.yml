@@ -1,0 +1,31 @@
+name: Update Track Log
+
+on:
+  schedule:
+    - cron: "*/3 * * * *"
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Run update-log
+        run: |
+          npm install
+          node update-log.js
+
+      - name: Commit changes
+        run: |
+          git config --global user.email "action@github.com"
+          git config --global user.name "GitHub Action"
+          git add tracks-log.html
+          git commit -m "Update track log" || echo "No changes"
+          git push
