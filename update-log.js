@@ -34,11 +34,17 @@ async function main() {
   if (!Array.isArray(tracks) || tracks.length === 0) return;
 
   const latest = tracks[0];
-  const { artist, title, program, timestamp } = latest;
-  if (!artist || !title) return;
+  const { artist, title, time } = latest;
+  if (!artist || !title || !time) return;
 
-  const dateStr = new Date(timestamp).toISOString().slice(0, 16).replace("T", " ");
-  const line = `<p><strong>${artist}</strong> — ${title} (${dateStr}, program: ${program || "Unknown"})</p>`;
+  let dateStr = "unknown time";
+  try {
+    dateStr = new Date(time).toISOString().slice(0, 16).replace("T", " ");
+  } catch (e) {
+    console.error("Invalid time format:", time);
+  }
+
+  const line = `<p><strong>${artist}</strong> — ${title} (${dateStr})</p>`;
 
   const html = fs.readFileSync(LOG_PATH, "utf-8");
   if (html.includes(line)) return;
