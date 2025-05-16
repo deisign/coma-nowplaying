@@ -19,8 +19,7 @@ jobs:
 
       - name: Run update-log
         run: |
-          npm install
-          node update-log.js
+           node update-log.js
 
       - name: Commit changes
         run: |
