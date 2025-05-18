@@ -1,3 +1,4 @@
+# .github/workflows/update-log.yml
 name: Update tracks log
 
 on:
@@ -9,11 +10,9 @@ jobs:
   update-log:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '18'
 
@@ -28,5 +27,5 @@ jobs:
         with:
           author_name: 'github-actions[bot]'
           author_email: 'github-actions[bot]@users.noreply.github.com'
-          message: 'chore: обновлён tracks-log'
-          add: public/tracks-log.html
+          message: 'chore: обновлен tracks-log'
+          add: tracks-log.html
