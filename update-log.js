@@ -3,7 +3,6 @@ const fs = require('fs').promises;
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_KEY;
-
 if (!SUPABASE_URL || !SUPABASE_KEY) {
   console.error('❌ Не задан SUPABASE_URL или SUPABASE_KEY');
   process.exit(1);
@@ -12,7 +11,9 @@ if (!SUPABASE_URL || !SUPABASE_KEY) {
 ;(async () => {
   try {
     console.log('⏳ Fetching from', SUPABASE_URL);
-    const url = `${SUPABASE_URL}/rest/v1/tracks_log?select=date,artist,title&order=date.desc`;
+
+    // Твоя таблица называется tracks и в ней нет date
+    const url = `${SUPABASE_URL}/rest/v1/tracks?select=artist,title&order=id.desc`;
     const res = await fetch(url, {
       headers: {
         apikey: SUPABASE_KEY,
@@ -40,8 +41,7 @@ if (!SUPABASE_URL || !SUPABASE_KEY) {
     console.log(`✅ Получено записей: ${data.length}`);
 
     const items = data.map(
-      ({ date, artist, title }) =>
-        `<li>${date} — <strong>${artist}</strong> — ${title}</li>`
+      ({ artist, title }) => `<li><strong>${artist}</strong> — ${title}</li>`
     );
     const html = `<!DOCTYPE html>
 <html><head><meta charset="utf-8"><title>Tracks log</title></head>
