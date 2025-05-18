@@ -1,18 +1,23 @@
-# .github/workflows/update-log.yml
 name: Update tracks log
 
 on:
   push:
     branches: [main]
   workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *'
 
 jobs:
   update-log:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0        # 🛠️ забираем всю историю для корректного пуша
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: '18'
 
@@ -27,5 +32,7 @@ jobs:
         with:
           author_name: 'github-actions[bot]'
           author_email: 'github-actions[bot]@users.noreply.github.com'
-          message: 'chore: обновлен tracks-log'
+          message: 'chore: обновлён tracks-log'
           add: tracks-log.html
+          push: true             # 🛠️ явно пушим изменения
+          force: true            # 🛠️ принудительный пуш, чтобы обойти non-fast-forward
