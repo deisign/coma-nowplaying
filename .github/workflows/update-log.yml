@@ -1,30 +1,35 @@
-name: Update Track Log
+name: Update tracks log
 
 on:
-  schedule:
-    - cron: "*/3 * * * *"
+  push:
+    branches: [main]
   workflow_dispatch:
 
 jobs:
-  update:
+  update-log:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Set up Node
-        uses: actions/setup-node@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: '18'
 
-      - name: Run update-log
-        run: |
-           node update-log.js
+      - name: Install dependencies
+        run: npm ci
 
-      - name: Commit changes
-        run: |
-          git config --global user.email "action@github.com"
-          git config --global user.name "GitHub Action"
-          git add tracks-log.html
-          git commit -m "Update track log" || echo "No changes"
-          git push
+      - name: Run update-log script
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        run: node update-log.js
+
+      - name: Commit updated tracks-log
+        uses: EndBug/add-and-commit@v9
+        with:
+          author_name: github-actions[bot]
+          author_email: github-actions[bot]@users.noreply.github.com
+          message: chore: обновлён tracks-log
+          add: public/tracks-log.html
