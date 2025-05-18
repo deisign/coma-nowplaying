@@ -1,4 +1,3 @@
-# .github/workflows/update-log.yml
 name: Update tracks log
 
 on:
