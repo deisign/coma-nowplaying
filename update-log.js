@@ -1,56 +1,58 @@
-const fs = require("fs");
-const https = require("https");
+// update-log.js
+import fs from 'fs/promises';
 
-const TRACKS_URL = "https://raw.githubusercontent.com/deisign/comafm-parser/main/tracks.json";
-const LOG_PATH = "tracks-log.html";
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_KEY = process.env.SUPABASE_KEY;
 
-function fetchJSON(url) {
-  return new Promise((resolve, reject) => {
-    https.get(url, res => {
-      let data = "";
-      res.on("data", chunk => data += chunk);
-      res.on("end", () => resolve(JSON.parse(data)));
-    }).on("error", reject);
+if (!SUPABASE_URL || !SUPABASE_KEY) {
+  console.error('❌ Не задан SUPABASE_URL или SUPABASE_KEY');
+  process.exit(1);
+}
+
+async function run() {
+  console.log('⏳ Fetching from', SUPABASE_URL);
+
+  const url = `${SUPABASE_URL}/rest/v1/tracks_log?select=date,artist,title&order=date.desc`;
+  const res = await fetch(url, {
+    headers: {
+      apikey: SUPABASE_KEY,
+      Authorization: `Bearer ${SUPABASE_KEY}`,
+    },
   });
-}
+  console.log('» Status:', res.status);
 
-function getCurrentLogEntries() {
-  if (!fs.existsSync(LOG_PATH)) return [];
-  const html = fs.readFileSync(LOG_PATH, "utf-8");
-  const matches = html.matchAll(/<strong>(.*?)<\/strong> — (.*?) \((.*?)\)<\/p>/g);
-  return Array.from(matches).map(m => m[0]);
-}
+  const raw = await res.text();
+  console.log('» Body preview:', raw.slice(0, 200).replace(/\n/g, ' '));
 
-function insertTrack(html, line) {
-  const marker = "<div id=\"log\">";
-  const i = html.indexOf(marker);
-  if (i === -1) throw new Error("Log marker not found");
-  const insertAt = html.indexOf("</div>", i);
-  return html.slice(0, insertAt) + line + "\n" + html.slice(insertAt);
-}
-
-async function main() {
-  const tracks = await fetchJSON(TRACKS_URL);
-  if (!Array.isArray(tracks) || tracks.length === 0) return;
-
-  const latest = tracks[0];
-  const { artist, title, time } = latest;
-  if (!artist || !title || !time) return;
-
-  let dateStr = "unknown time";
-  try {
-    dateStr = new Date(time).toISOString().slice(0, 16).replace("T", " ");
-  } catch (e) {
-    console.error("Invalid time format:", time);
+  if (!res.ok) {
+    console.error('❌ Ошибка от Supabase:', raw);
+    process.exit(1);
   }
 
-  const line = `<p><strong>${artist}</strong> — ${title} (${dateStr})</p>`;
+  let data;
+  try {
+    data = JSON.parse(raw);
+  } catch (err) {
+    console.error('❌ Не смог распарсить JSON:\n', raw);
+    throw err;
+  }
 
-  const html = fs.readFileSync(LOG_PATH, "utf-8");
-  if (html.includes(line)) return;
+  console.log(`✅ Получено записей: ${data.length}`);
 
-  const updated = insertTrack(html, line);
-  fs.writeFileSync(LOG_PATH, updated);
+  // Формируем простой HTML
+  const items = data.map(
+    ({ date, artist, title }) =>
+      `<li>${date} — <strong>${artist}</strong> — ${title}</li>`
+  );
+  const html = `<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>Tracks log</title></head>
+<body><ul>\n${items.join('\n')}\n</ul></body></html>`;
+
+  await fs.writeFile('public/tracks-log.html', html);
+  console.log('✅ public/tracks-log.html обновлён');
 }
 
-main().catch(e => { console.error(e); process.exit(1); });
+run().catch(err => {
+  console.error(err);
+  process.exit(1);
+});
