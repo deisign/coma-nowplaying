@@ -12,57 +12,31 @@ if (!SUPABASE_URL || !SUPABASE_KEY) {
   try {
     console.log('⏳ Fetching from', SUPABASE_URL);
 
-    // Берём все записи из таблицы tracks (только artist и title), сортируем по id
     const url = `${SUPABASE_URL}/rest/v1/tracks?select=artist,title&order=id.desc`;
     const res = await fetch(url, {
-      headers: {
-        apikey: SUPABASE_KEY,
-        Authorization: `Bearer ${SUPABASE_KEY}`,
-      },
+      headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` }
     });
     console.log('» Status:', res.status);
 
     const raw = await res.text();
-    console.log('» Body preview:', raw.slice(0, 200).replace(/\n/g, ' '));
+    console.log('» Body preview:', raw.slice(0,200).replace(/\n/g,' '));
 
     if (!res.ok) {
       console.error('❌ Ошибка от Supabase:', raw);
       process.exit(1);
     }
-
-    let data;
-    try {
-      data = JSON.parse(raw);
-    } catch (err) {
-      console.error('❌ Не смог распарсить JSON:\n', raw);
-      throw err;
-    }
-
+    const data = JSON.parse(raw);
     console.log(`✅ Получено записей: ${data.length}`);
 
-    // Убедимся, что папка public существует
-    await fs.mkdir('public', { recursive: true });
-
-    // Собираем HTML-список
     const items = data.map(
       ({ artist, title }) => `<li><strong>${artist}</strong> — ${title}</li>`
     );
     const html = `<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <title>Tracks log</title>
-</head>
-<body>
-  <ul>
-    ${items.join('\n    ')}
-  </ul>
-</body>
-</html>`;
+<html><head><meta charset="utf-8"><title>Tracks log</title></head>
+<body><ul>\n${items.join('\n')}\n</ul></body></html>`;
 
-    // Записываем файл
-    await fs.writeFile('public/tracks-log.html', html);
-    console.log('✅ public/tracks-log.html обновлён');
+    await fs.writeFile('tracks-log.html', html);
+    console.log('✅ tracks-log.html обновлён');
   } catch (err) {
     console.error(err);
     process.exit(1);
