@@ -29,7 +29,7 @@ jobs:
       - name: Commit updated tracks-log
         uses: EndBug/add-and-commit@v9
         with:
-          author_name: github-actions[bot]
-          author_email: github-actions[bot]@users.noreply.github.com
-          message: chore: обновлён tracks-log
+          author_name: 'github-actions[bot]'
+          author_email: 'github-actions[bot]@users.noreply.github.com'
+          message: 'chore: обновлён tracks-log'
           add: public/tracks-log.html
