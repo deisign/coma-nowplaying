@@ -12,7 +12,7 @@ if (!SUPABASE_URL || !SUPABASE_KEY) {
   try {
     console.log('⏳ Fetching from', SUPABASE_URL);
 
-    // Твоя таблица называется tracks и в ней нет date
+    // Берём все записи из таблицы tracks (только artist и title), сортируем по id
     const url = `${SUPABASE_URL}/rest/v1/tracks?select=artist,title&order=id.desc`;
     const res = await fetch(url, {
       headers: {
@@ -40,13 +40,27 @@ if (!SUPABASE_URL || !SUPABASE_KEY) {
 
     console.log(`✅ Получено записей: ${data.length}`);
 
+    // Убедимся, что папка public существует
+    await fs.mkdir('public', { recursive: true });
+
+    // Собираем HTML-список
     const items = data.map(
       ({ artist, title }) => `<li><strong>${artist}</strong> — ${title}</li>`
     );
     const html = `<!DOCTYPE html>
-<html><head><meta charset="utf-8"><title>Tracks log</title></head>
-<body><ul>\n${items.join('\n')}\n</ul></body></html>`;
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Tracks log</title>
+</head>
+<body>
+  <ul>
+    ${items.join('\n    ')}
+  </ul>
+</body>
+</html>`;
 
+    // Записываем файл
     await fs.writeFile('public/tracks-log.html', html);
     console.log('✅ public/tracks-log.html обновлён');
   } catch (err) {
