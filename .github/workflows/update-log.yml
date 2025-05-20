@@ -1,19 +1,20 @@
-# .github/workflows/update-log.yml
-name: Update tracks log
+name: Sync Supabase → paginated tracks log
 
 on:
   push:
     branches: [main]
   workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *'  # ежедневно в 00:00 UTC
 
 jobs:
-  update-log:
+  build-and-push:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout repo
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0     # нужно, чтобы корректно пушить обратно
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -24,13 +25,13 @@ jobs:
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
-        run: node update-log.js
+        run: npm install node-fetch && node update-log.js
 
-      - name: Commit updated tracks-log
+      - name: Commit and push JSON + HTML pages
         uses: EndBug/add-and-commit@v9
         with:
-          author_name:    'github-actions[bot]'
-          author_email:   'github-actions[bot]@users.noreply.github.com'
-          message:        'chore: обновлён tracks-log'
-          add:            'tracks-log.html'
-          push:           true
+          author_name:  'github-actions[bot]'
+          author_email: 'github-actions[bot]@users.noreply.github.com'
+          message:      'chore: sync and regenerate tracks log'
+          add:          'tracks-log.json,tracks-log.html,tracks-log-page*.html'
+          push:         true

@@ -1,51 +1,94 @@
 // update-log.js
-const fs = require('fs').promises;
+// Инкрементальное обновление: JSON-хранилище + пагинация по 2000
 
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_KEY = process.env.SUPABASE_KEY;
+const fs = require('fs').promises;
+const path = require('path');
+const fetch = require('node-fetch'); // Node18+ можно убрать, если fetch есть глобально
+
+// Конфиг
+const JSON_STORE    = path.resolve(__dirname, 'tracks-log.json');
+const ITEMS_PER_PAGE= 2000;
+const PAGE_PREFIX   = 'tracks-log-page';
+const FIRST_PAGE    = 'tracks-log.html';
+
+const SUPABASE_URL  = process.env.SUPABASE_URL;
+const SUPABASE_KEY  = process.env.SUPABASE_KEY;
 if (!SUPABASE_URL || !SUPABASE_KEY) {
-  console.error('❌ Не задан SUPABASE_URL или SUPABASE_KEY');
+  console.error('❌ Не заданы SUPABASE_URL/SUPABASE_KEY');
   process.exit(1);
 }
 
 ;(async () => {
+  // 1) Загрузка существующего лога
+  let log = [];
   try {
-    console.log('⏳ Fetching all tracks…');
+    const txt = await fs.readFile(JSON_STORE, 'utf8');
+    log = JSON.parse(txt);
+    console.log(`ℹ️ Loaded ${log.length} existing records`);
+  } catch {
+    console.log('ℹ️ No JSON store found, starting fresh');
+  }
 
-    // Без параметра limit – Supabase REST вернет все записи (до 10000 по умолчанию)
-    const url = `${SUPABASE_URL}/rest/v1/tracks?select=artist,title&order=id.asc&limit=10000`;
-    const res = await fetch(url, {
-      headers: {
-        apikey: SUPABASE_KEY,
-        Authorization: `Bearer ${SUPABASE_KEY}`,
-      },
-    });
-    console.log('» Status:', res.status);
+  // 2) Подтягиваем ВСЕ треки из Supabase
+  console.log('⏳ Fetching current tracks from Supabase...');
+  const url = `${SUPABASE_URL}/rest/v1/tracks?select=id,artist,title,album,date&order=id.asc`;
+  const res = await fetch(url, {
+    headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` },
+  });
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`Supabase error ${res.status}: ${err}`);
+  }
+  const current = await res.json();
+  console.log(`✅ Fetched ${current.length} records from Supabase`);
 
-    const data = await res.json();
-    if (!res.ok) {
-      throw new Error(`Supabase error ${res.status}: ${JSON.stringify(data)}`);
+  // 3) Фильтрация новых
+  const existingIds = new Set(log.map(r => r.id));
+  const newRec = current.filter(r => !existingIds.has(r.id));
+  console.log(`🌱 New records to add: ${newRec.length}`);
+  log = log.concat(newRec);
+
+  // 4) Сохраняем обновлённый JSON-хранилище
+  await fs.writeFile(JSON_STORE, JSON.stringify(log, null, 2), 'utf8');
+  console.log(`💾 Updated ${JSON_STORE}, total: ${log.length}`);
+
+  // 5) Генерация пагинированных HTML
+  const totalPages = Math.ceil(log.length / ITEMS_PER_PAGE);
+  for (let page = 1; page <= totalPages; page++) {
+    const slice = log.slice((page-1)*ITEMS_PER_PAGE, page*ITEMS_PER_PAGE);
+    const itemsHtml = slice.map(r =>
+      `<li>${r.id}. <strong>${r.artist}</strong> — ${r.title}` +
+      (r.album   ? ` [${r.album}]` : '') +
+      (r.date    ? ` (${r.date})`   : '') +
+      `</li>`
+    ).join('\n    ');
+
+    const nav = [];
+    if (page > 1) {
+      const prev = page===2 ? FIRST_PAGE : `${PAGE_PREFIX}${page-1}.html`;
+      nav.push(`<a href="${prev}">← Назад</a>`);
+    }
+    if (page < totalPages) {
+      nav.push(`<a href="${PAGE_PREFIX}${page+1}.html">Вперёд →</a>`);
     }
 
-    console.log(`✅ Получено записей: ${data.length}`);
-
-    const items = data.map(
-      ({ artist, title }) => `<li><strong>${artist}</strong> — ${title}</li>`
-    );
     const html = `<!DOCTYPE html>
 <html>
-<head><meta charset="utf-8"><title>Tracks log</title></head>
+<head><meta charset="utf-8">
+  <title>Tracks log — page ${page}/${totalPages}</title>
+</head>
 <body>
   <ul>
-    ${items.join('\n    ')}
+    ${itemsHtml}
   </ul>
+  <div>${nav.join(' | ')}</div>
 </body>
 </html>`;
 
-    await fs.writeFile('tracks-log.html', html);
-    console.log('✅ tracks-log.html обновлён');
-  } catch (err) {
-    console.error(err);
-    process.exit(1);
+    const outFile = page===1 ? FIRST_PAGE : `${PAGE_PREFIX}${page}.html`;
+    await fs.writeFile(outFile, html, 'utf8');
+    console.log(`✅ ${outFile} (${slice.length} items)`);
   }
+
+  console.log('🎉 All pages regenerated');
 })();
