@@ -1,0 +1,38 @@
+name: Generate paginated tracks log
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *'    # Каждый день в 00:00 UTC
+
+jobs:
+  build-pages:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0      # Забираем полную историю для корректного пуша
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install CSV parser
+        run: npm install csv-parse
+
+      - name: Generate paginated pages
+        run: node generate-csv-pages.js
+
+      - name: Commit and push generated pages
+        uses: EndBug/add-and-commit@v9
+        with:
+          author_name: 'github-actions[bot]'
+          author_email: 'github-actions[bot]@users.noreply.github.com'
+          message: 'chore: regenerate paginated tracks log'
+          add: 'tracks-log.html,tracks-log-page*.html'
+          push: true
+          force: true
