@@ -3,7 +3,6 @@
 
 const fs = require('fs').promises;
 const path = require('path');
-const fetch = require('node-fetch'); // Node18+ можно убрать, если fetch есть глобально
 
 // Конфиг
 const JSON_STORE    = path.resolve(__dirname, 'tracks-log.json');
